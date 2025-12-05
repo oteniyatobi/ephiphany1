@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   phone?: string;
+  location?: string;
 }
 
 interface AuthContextType {
@@ -56,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         id: "user-" + Date.now(),
         name: name,
         email: email,
-        phone: "+250 788 123 456",
+        // Phone number is optional - user can add it later in profile
       };
       
       // Store user in users list

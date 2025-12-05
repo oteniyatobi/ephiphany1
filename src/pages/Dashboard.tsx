@@ -5,10 +5,12 @@ import { Card } from "@/components/ui/card";
 import ServiceCard from "@/components/ServiceCard";
 import BottomNav from "@/components/BottomNav";
 import AppHeader from "@/components/AppHeader";
+import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/kigali-city.jpg";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const services = [
     {
@@ -37,7 +39,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <AppHeader 
-        title="Welcome back!" 
+        title={user ? `Welcome back, ${user.name.split(' ')[0]}!` : "Welcome back!"} 
         subtitle="How can we help you today?" 
         showBack={false}
         showProfile={true}

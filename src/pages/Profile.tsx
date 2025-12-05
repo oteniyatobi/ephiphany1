@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Phone, Mail, MapPin, Star, Settings, HelpCircle, LogOut } from "lucide-react";
+import { User, Phone, Mail, MapPin, Star, Settings, HelpCircle, LogOut, Edit2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import BottomNav from "@/components/BottomNav";
 import AppHeader from "@/components/AppHeader";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -14,6 +18,10 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editName, setEditName] = useState(user?.name || "");
+  const [editPhone, setEditPhone] = useState(user?.phone || "");
+  const [editLocation, setEditLocation] = useState(user?.location || "Kigali, Rwanda");
 
   const handleLogout = () => {
     logout();
@@ -22,6 +30,56 @@ const Profile = () => {
       description: "You have been successfully logged out.",
     });
     navigate("/welcome");
+  };
+
+  const handleEditProfile = () => {
+    setIsEditOpen(true);
+    setEditName(user?.name || "");
+    setEditPhone(user?.phone || "");
+    setEditLocation(user?.location || "Kigali, Rwanda");
+  };
+
+  const handleSaveProfile = () => {
+    if (!user) return;
+    
+    // Update user in localStorage
+    const updatedUser = {
+      ...user,
+      name: editName,
+      phone: editPhone.trim() || undefined, // Remove phone if empty
+      location: editLocation.trim() || "Kigali, Rwanda", // Default location
+    };
+    
+    // Update in users list
+    const existingUsers = localStorage.getItem("epiphany_users");
+    if (existingUsers) {
+      const users = JSON.parse(existingUsers);
+      const updatedUsers = users.map((u: typeof user) => 
+        u.email === user.email ? updatedUser : u
+      );
+      localStorage.setItem("epiphany_users", JSON.stringify(updatedUsers));
+    }
+    
+    // Update current user
+    localStorage.setItem("epiphany_user", JSON.stringify(updatedUser));
+    
+    // Reload page to reflect changes
+    window.location.reload();
+    
+    toast({
+      title: "Profile updated",
+      description: "Your profile has been successfully updated.",
+    });
+    
+    setIsEditOpen(false);
+  };
+
+  const handleViewStats = (type: string) => {
+    toast({
+      title: `${type} History`,
+      description: `Viewing your ${type.toLowerCase()} history...`,
+    });
+    // In a real app, this would navigate to a detailed stats page
   };
 
   const menuItems: Array<{
@@ -38,10 +96,7 @@ const Profile = () => {
       label: "Account Settings", 
       show: isAuthenticated,
       action: () => {
-        toast({
-          title: "Account Settings",
-          description: "Account settings feature coming soon!",
-        });
+        handleEditProfile();
       }
     },
     { 
@@ -52,7 +107,7 @@ const Profile = () => {
       action: () => {
         toast({
           title: "Rewards & Loyalty",
-          description: "You have 5 rewards available!",
+          description: "You have 5 rewards available! Redeem them on your next purchase.",
         });
       }
     },
@@ -61,9 +116,10 @@ const Profile = () => {
       label: "Help & Support", 
       show: true,
       action: () => {
+        window.open("mailto:support@epiphany.rw?subject=Epiphany App Support", "_blank");
         toast({
-          title: "Help & Support",
-          description: "Contact us at support@epiphany.rw",
+          title: "Opening Email",
+          description: "Opening your email client to contact support...",
         });
       }
     },
@@ -96,11 +152,16 @@ const Profile = () => {
                   <h2 className="text-xl font-bold">{user?.name || "Guest User"}</h2>
                   <Badge variant="secondary" className="mt-1">
                     <Star className="h-3 w-3 mr-1 fill-gold text-gold" />
-                    {isAuthenticated ? "Gold Member" : "Guest"}
+                    {isAuthenticated ? "Member" : "Guest"}
                   </Badge>
                 </div>
                 {isAuthenticated && (
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleEditProfile}
+                  >
+                    <Edit2 className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
                 )}
@@ -121,7 +182,7 @@ const Profile = () => {
                 )}
                 <div className="flex items-center gap-2">
                   <MapPin className="h-3 w-3" />
-                  <span>Kigali, Rwanda</span>
+                  <span>{user?.location || "Kigali, Rwanda"}</span>
                 </div>
               </div>
             </div>
@@ -130,16 +191,25 @@ const Profile = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">12</p>
+          <Card 
+            className="p-4 text-center cursor-pointer hover:shadow-md transition-all"
+            onClick={() => handleViewStats("Tours")}
+          >
+            <p className="text-2xl font-bold text-green-600">0</p>
             <p className="text-xs text-muted-foreground">Tours</p>
           </Card>
-          <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-purple-600">23</p>
+          <Card 
+            className="p-4 text-center cursor-pointer hover:shadow-md transition-all"
+            onClick={() => handleViewStats("Purchases")}
+          >
+            <p className="text-2xl font-bold text-purple-600">0</p>
             <p className="text-xs text-muted-foreground">Purchases</p>
           </Card>
-          <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-orange-600">8</p>
+          <Card 
+            className="p-4 text-center cursor-pointer hover:shadow-md transition-all"
+            onClick={() => handleViewStats("Events")}
+          >
+            <p className="text-2xl font-bold text-orange-600">0</p>
             <p className="text-xs text-muted-foreground">Events</p>
           </Card>
         </div>
@@ -191,6 +261,72 @@ const Profile = () => {
           <p>Powered by Mind Storms®</p>
         </div>
       </main>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Update your profile information
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Full Name</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Enter your name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                value={user?.email || ""}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Phone Number (Optional)</Label>
+              <Input
+                id="edit-phone"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="Enter your phone number"
+              />
+              <p className="text-xs text-muted-foreground">Leave empty to remove phone number</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-location">Location</Label>
+              <Input
+                id="edit-location"
+                value={editLocation}
+                onChange={(e) => setEditLocation(e.target.value)}
+                placeholder="Enter your location"
+              />
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button 
+                onClick={handleSaveProfile}
+                className="flex-1"
+              >
+                Save Changes
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setIsEditOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <BottomNav />
     </div>

@@ -207,7 +207,7 @@ const Login = () => {
           </div>
 
           <div className="text-center text-xs text-muted-foreground pt-4 border-t">
-            <p>Demo: Create an account or sign in to access Epiphany</p>
+            <p>Create an account or sign in to access Epiphany</p>
           </div>
         </div>
       </Card>
