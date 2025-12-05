@@ -166,6 +166,33 @@ const Tourism = () => {
     window.open(hotel.bookingUrl, "_blank");
   };
 
+  const handleItineraryView = (itineraryName: string, url: string) => {
+    toast({
+      title: "Opening Itinerary",
+      description: `Taking you to ${itineraryName} details`,
+    });
+    window.open(url, "_blank");
+  };
+
+  const handleStartPlanning = () => {
+    toast({
+      title: "Redirecting...",
+      description: "Taking you to plan your custom journey",
+    });
+    window.open("https://visitrwanda.com/plan-your-trip/", "_blank");
+  };
+
+  const handleViewAllItineraries = () => {
+    // Scroll to experiences section
+    const experiencesSection = document.querySelector('[data-section="experiences"]');
+    if (experiencesSection) {
+      experiencesSection.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // Fallback: redirect to Visit Rwanda itineraries
+      window.open("https://visitrwanda.com/interests/", "_blank");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <AppHeader title="Tourism & Experiences" subtitle="Discover the beauty of Rwanda">
@@ -204,7 +231,7 @@ const Tourism = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">Curated Itineraries</h2>
-            <Button variant="ghost" size="sm">View All</Button>
+            <Button variant="ghost" size="sm" onClick={handleViewAllItineraries}>View All</Button>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             <Card className="min-w-[280px] p-4 bg-gradient-to-br from-primary/10 to-accent/5 cursor-pointer hover:shadow-lg transition-all">
@@ -216,7 +243,12 @@ const Tourism = () => {
               <p className="text-sm text-muted-foreground mb-3">Kigali memorials, Inema Arts, Traditional dance</p>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-primary">RWF 180,000</span>
-                <Button size="sm">View Details</Button>
+                <Button 
+                  size="sm" 
+                  onClick={() => handleItineraryView("3-Day Cultural Journey", "https://visitrwanda.com/interests/cultural-heritage/")}
+                >
+                  View Details
+                </Button>
               </div>
             </Card>
             <Card className="min-w-[280px] p-4 bg-gradient-to-br from-accent/10 to-primary/5 cursor-pointer hover:shadow-lg transition-all">
@@ -228,7 +260,12 @@ const Tourism = () => {
               <p className="text-sm text-muted-foreground mb-3">Boat tours, beach activities, local cuisine</p>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-primary">RWF 120,000</span>
-                <Button size="sm">View Details</Button>
+                <Button 
+                  size="sm" 
+                  onClick={() => handleItineraryView("Lake Kivu Escape", "https://visitrwanda.com/interests/lakes/")}
+                >
+                  View Details
+                </Button>
               </div>
             </Card>
           </div>
@@ -244,7 +281,11 @@ const Tourism = () => {
                 <p className="text-xs text-muted-foreground">Build a custom itinerary</p>
               </div>
             </div>
-            <Button size="sm" className="bg-gold text-gold-foreground hover:bg-gold/90">
+            <Button 
+              size="sm" 
+              className="bg-gold text-gold-foreground hover:bg-gold/90"
+              onClick={handleStartPlanning}
+            >
               Start Planning
             </Button>
           </div>
@@ -273,7 +314,13 @@ const Tourism = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">Featured Hotels</h2>
-            <Button variant="ghost" size="sm">View All</Button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => window.open("https://www.booking.com/searchresults.html?ss=Rwanda", "_blank")}
+            >
+              View All
+            </Button>
           </div>
           <div className="grid gap-3">
             {[
@@ -308,7 +355,7 @@ const Tourism = () => {
         </div>
 
         {/* Experiences Grid */}
-        <div className="space-y-4">
+        <div className="space-y-4" data-section="experiences">
           <h2 className="font-semibold">
             {filteredExperiences.length === experiences.length 
               ? "Popular Experiences" 

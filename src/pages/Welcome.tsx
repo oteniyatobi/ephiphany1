@@ -6,15 +6,11 @@ const Welcome = () => {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate("/dashboard");
+    navigate("/login");
   };
 
   const handleLogin = () => {
     navigate("/login");
-  };
-
-  const handleGuest = () => {
-    navigate("/dashboard");
   };
 
   return (
@@ -68,14 +64,6 @@ const Welcome = () => {
             className="border-white text-white hover:bg-white/10"
           >
             Sign In
-          </Button>
-          <Button
-            size="lg"
-            variant="ghost"
-            onClick={handleGuest}
-            className="text-white/80 hover:text-white hover:bg-white/5"
-          >
-            Continue as Guest
           </Button>
         </div>
 

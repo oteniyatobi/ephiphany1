@@ -201,6 +201,15 @@ const Events = () => {
     window.open(event.ticketUrl, "_blank");
   };
 
+  const handleDirections = (venue: string, location: string) => {
+    const query = encodeURIComponent(`${venue}, ${location}, Rwanda`);
+    toast({
+      title: "Opening Maps",
+      description: `Getting directions to ${venue}`,
+    });
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <AppHeader title="Events" subtitle="Discover & book tickets">
@@ -338,7 +347,11 @@ const Events = () => {
                     </span>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleDirections(event.venue, event.location)}
+                    >
                       <MapPin className="h-4 w-4" />
                       Directions
                     </Button>

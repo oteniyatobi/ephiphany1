@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, signup } = useAuth();
   const { toast } = useToast();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,22 +23,40 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const success = await login(email, password);
-
-    setIsLoading(false);
-
-    if (success) {
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
-      });
-      navigate("/dashboard");
+    if (isSignUp) {
+      const success = await signup(name, email, password);
+      setIsLoading(false);
+      
+      if (success) {
+        toast({
+          title: "Account created!",
+          description: "Welcome to Epiphany! You can now explore Rwanda.",
+        });
+        navigate("/dashboard");
+      } else {
+        toast({
+          title: "Sign up failed",
+          description: "Email already exists. Please try logging in instead.",
+          variant: "destructive",
+        });
+      }
     } else {
-      toast({
-        title: "Login failed",
-        description: "Please check your email and password.",
-        variant: "destructive",
-      });
+      const success = await login(email, password);
+      setIsLoading(false);
+
+      if (success) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+        navigate("/dashboard");
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Please check your email and password.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -73,15 +93,35 @@ const Login = () => {
         </svg>
       </div>
 
-      {/* Login Form */}
+      {/* Login/Sign Up Form */}
       <Card className="relative z-10 w-full max-w-md p-8 bg-card/95 backdrop-blur-sm">
         <div className="space-y-6">
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold">Welcome Back</h1>
-            <p className="text-muted-foreground">Sign in to continue to Epiphany</p>
+            <h1 className="text-3xl font-bold">{isSignUp ? "Create Account" : "Welcome Back"}</h1>
+            <p className="text-muted-foreground">
+              {isSignUp ? "Sign up to start exploring Rwanda" : "Sign in to continue to Epiphany"}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    className="pl-10"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -105,11 +145,12 @@ const Login = () => {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder={isSignUp ? "Create a password" : "Enter your password"}
                   className="pl-10 pr-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                 />
                 <Button
                   type="button"
@@ -132,23 +173,41 @@ const Login = () => {
               className="w-full bg-primary hover:bg-primary/90"
               disabled={isLoading}
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading 
+                ? (isSignUp ? "Creating account..." : "Signing in...") 
+                : (isSignUp ? "Sign Up" : "Sign In")
+              }
             </Button>
           </form>
 
           <div className="text-center text-sm text-muted-foreground">
-            <p>Don't have an account?</p>
-            <Button
-              variant="link"
-              className="text-primary"
-              onClick={() => navigate("/welcome")}
-            >
-              Continue as Guest
-            </Button>
+            {isSignUp ? (
+              <>
+                <p>Already have an account?</p>
+                <Button
+                  variant="link"
+                  className="text-primary"
+                  onClick={() => setIsSignUp(false)}
+                >
+                  Sign In instead
+                </Button>
+              </>
+            ) : (
+              <>
+                <p>Don't have an account?</p>
+                <Button
+                  variant="link"
+                  className="text-primary"
+                  onClick={() => setIsSignUp(true)}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="text-center text-xs text-muted-foreground pt-4 border-t">
-            <p>Demo: Use any email and password to login</p>
+            <p>Demo: Create an account or sign in to access Epiphany</p>
           </div>
         </div>
       </Card>

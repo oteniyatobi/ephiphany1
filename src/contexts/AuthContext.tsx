@@ -11,6 +11,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -35,6 +36,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
+  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
+    
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Check if user already exists (demo - check localStorage)
+    const existingUsers = localStorage.getItem("epiphany_users");
+    const users = existingUsers ? JSON.parse(existingUsers) : [];
+    
+    if (users.find((u: User) => u.email === email)) {
+      setIsLoading(false);
+      return false; // User already exists
+    }
+    
+    if (name && email && password) {
+      const newUser: User = {
+        id: "user-" + Date.now(),
+        name: name,
+        email: email,
+        phone: "+250 788 123 456",
+      };
+      
+      // Store user in users list
+      users.push(newUser);
+      localStorage.setItem("epiphany_users", JSON.stringify(users));
+      
+      // Also store user credentials (demo only - in production use secure backend)
+      const credentials = JSON.parse(localStorage.getItem("epiphany_credentials") || "[]");
+      credentials.push({ email, password });
+      localStorage.setItem("epiphany_credentials", JSON.stringify(credentials));
+      
+      setUser(newUser);
+      localStorage.setItem("epiphany_user", JSON.stringify(newUser));
+      setIsLoading(false);
+      return true;
+    }
+    
+    setIsLoading(false);
+    return false;
+  };
+
   const login = async (email: string, password: string): Promise<boolean> => {
     // Simulate API call - in real app, this would call your backend
     setIsLoading(true);
@@ -42,20 +85,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // For demo purposes, accept any email/password
-    // In production, validate against your backend
-    if (email && password) {
-      const newUser: User = {
-        id: "user-" + Date.now(),
-        name: email.split("@")[0] || "User",
-        email: email,
-        phone: "+250 788 123 456",
-      };
+    // Check credentials (demo - check localStorage)
+    const credentials = JSON.parse(localStorage.getItem("epiphany_credentials") || "[]");
+    const userCredential = credentials.find((c: { email: string; password: string }) => c.email === email);
+    
+    if (userCredential && userCredential.password === password) {
+      // Find user in users list
+      const existingUsers = localStorage.getItem("epiphany_users");
+      const users = existingUsers ? JSON.parse(existingUsers) : [];
+      const foundUser = users.find((u: User) => u.email === email);
       
-      setUser(newUser);
-      localStorage.setItem("epiphany_user", JSON.stringify(newUser));
-      setIsLoading(false);
-      return true;
+      if (foundUser) {
+        setUser(foundUser);
+        localStorage.setItem("epiphany_user", JSON.stringify(foundUser));
+        setIsLoading(false);
+        return true;
+      }
     }
     
     setIsLoading(false);
@@ -72,6 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         login,
+        signup,
         logout,
         isAuthenticated: !!user,
         isLoading,

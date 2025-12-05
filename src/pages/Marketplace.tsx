@@ -468,7 +468,12 @@ const Marketplace = () => {
                     <span>2,400+ sales</span>
                   </div>
                 </div>
-                <Button size="sm" variant="outline" className="h-7">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-7"
+                  onClick={() => window.open("https://www.shopin.rw/", "_blank")}
+                >
                   View Shop
                 </Button>
               </div>

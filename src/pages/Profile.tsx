@@ -33,10 +33,47 @@ const Profile = () => {
     show?: boolean;
     action?: () => void;
   }> = [
-    { icon: Settings, label: "Account Settings", path: "#", show: isAuthenticated },
-    { icon: Star, label: "Rewards & Loyalty", path: "#", badge: "5 rewards", show: isAuthenticated },
-    { icon: HelpCircle, label: "Help & Support", path: "#", show: true },
-    { icon: LogOut, label: isAuthenticated ? "Log Out" : "Sign In", path: "#", variant: isAuthenticated ? "destructive" : undefined, show: true, action: isAuthenticated ? handleLogout : () => navigate("/login") },
+    { 
+      icon: Settings, 
+      label: "Account Settings", 
+      show: isAuthenticated,
+      action: () => {
+        toast({
+          title: "Account Settings",
+          description: "Account settings feature coming soon!",
+        });
+      }
+    },
+    { 
+      icon: Star, 
+      label: "Rewards & Loyalty", 
+      badge: "5 rewards", 
+      show: isAuthenticated,
+      action: () => {
+        toast({
+          title: "Rewards & Loyalty",
+          description: "You have 5 rewards available!",
+        });
+      }
+    },
+    { 
+      icon: HelpCircle, 
+      label: "Help & Support", 
+      show: true,
+      action: () => {
+        toast({
+          title: "Help & Support",
+          description: "Contact us at support@epiphany.rw",
+        });
+      }
+    },
+    { 
+      icon: LogOut, 
+      label: isAuthenticated ? "Log Out" : "Sign In", 
+      variant: isAuthenticated ? "destructive" : undefined, 
+      show: true, 
+      action: isAuthenticated ? handleLogout : () => navigate("/login") 
+    },
   ];
 
   return (
