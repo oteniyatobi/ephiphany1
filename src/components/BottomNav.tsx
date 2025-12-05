@@ -1,15 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Car, UtensilsCrossed, MapPin, ShoppingBag, Calendar, Wallet, User } from "lucide-react";
+import { Home, MapPin, ShoppingBag, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/dashboard" },
-  { icon: Car, label: "Rides", path: "/rides" },
-  { icon: UtensilsCrossed, label: "Food", path: "/food" },
   { icon: MapPin, label: "Tourism", path: "/tourism" },
   { icon: ShoppingBag, label: "Market", path: "/marketplace" },
   { icon: Calendar, label: "Events", path: "/events" },
-  { icon: Wallet, label: "Wallet", path: "/wallet" },
 ];
 
 const BottomNav = () => {

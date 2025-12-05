@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Clock, Users, Star, Calendar, Plus, Sparkles } from "lucide-react";
+import { MapPin, Clock, Users, Star, Calendar, Plus, Sparkles, ExternalLink, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import BottomNav from "@/components/BottomNav";
 import AppHeader from "@/components/AppHeader";
+import { useToast } from "@/hooks/use-toast";
 import bannerImage from "@/assets/rwanda-tourism-banner.jpg";
 import genocideMemorial from "@/assets/genocide-memorial.jpg";
 import nyamataMemorial from "@/assets/nyamata-memorial.jpg";
@@ -15,9 +18,13 @@ import bugeseraLakeResort from "@/assets/bugesera-lake-resort.jpg";
 
 const Tourism = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const experiences = [
     {
+      id: "tour-1",
       title: "Kigali Genocide Memorial",
       category: "Cultural Heritage",
       duration: "2-3 hours",
@@ -25,8 +32,11 @@ const Tourism = () => {
       rating: 4.9,
       reviews: 1200,
       image: genocideMemorial,
+      location: "Gisozi, Kigali",
+      bookingUrl: "https://www.kgm.rw/visit",
     },
     {
+      id: "tour-2",
       title: "Nyamata Church Memorial",
       category: "Historical Site",
       duration: "Half Day",
@@ -34,17 +44,23 @@ const Tourism = () => {
       rating: 4.8,
       reviews: 850,
       image: nyamataMemorial,
+      location: "Nyamata, Bugesera",
+      bookingUrl: "https://visitrwanda.com/interests/memorials/",
     },
     {
-      title: "Volcanoes National Park",
+      id: "tour-3",
+      title: "Volcanoes National Park - Gorilla Trekking",
       category: "Nature & Wildlife",
       duration: "Full Day",
       price: "RWF 150,000",
       rating: 5.0,
       reviews: 2100,
       image: volcanoesPark,
+      location: "Musanze District",
+      bookingUrl: "https://visitrwanda.com/interests/gorilla-tracking/",
     },
     {
+      id: "tour-4",
       title: "Inema Arts Center",
       category: "Art & Culture",
       duration: "1-2 hours",
@@ -52,8 +68,11 @@ const Tourism = () => {
       rating: 4.7,
       reviews: 420,
       image: inemaArtsCenter,
+      location: "Kacyiru, Kigali",
+      bookingUrl: "https://visitrwanda.com/interests/arts-culture/",
     },
     {
+      id: "tour-5",
       title: "Lake Kivu Boat Tour",
       category: "Adventure",
       duration: "4-5 hours",
@@ -61,8 +80,47 @@ const Tourism = () => {
       rating: 4.8,
       reviews: 680,
       image: lakeKivuTour,
+      location: "Karongi, Western Province",
+      bookingUrl: "https://visitrwanda.com/interests/lakes/",
     },
     {
+      id: "tour-6",
+      title: "Akagera National Park Safari",
+      category: "Nature & Wildlife",
+      duration: "Full Day",
+      price: "RWF 80,000",
+      rating: 4.9,
+      reviews: 1500,
+      image: volcanoesPark, // Using existing image as placeholder
+      location: "Eastern Province",
+      bookingUrl: "https://visitrwanda.com/interests/national-parks/akagera-national-park/",
+    },
+    {
+      id: "tour-7",
+      title: "Nyungwe Forest Canopy Walk",
+      category: "Adventure",
+      duration: "3-4 hours",
+      price: "RWF 60,000",
+      rating: 4.8,
+      reviews: 920,
+      image: lakeKivuTour, // Using existing image as placeholder
+      location: "Nyungwe, Southern Province",
+      bookingUrl: "https://visitrwanda.com/interests/national-parks/nyungwe-national-park/",
+    },
+    {
+      id: "tour-8",
+      title: "King's Palace Museum",
+      category: "Cultural Heritage",
+      duration: "1-2 hours",
+      price: "RWF 10,000",
+      rating: 4.6,
+      reviews: 650,
+      image: genocideMemorial, // Using existing image as placeholder
+      location: "Nyanza, Southern Province",
+      bookingUrl: "https://visitrwanda.com/interests/museums/",
+    },
+    {
+      id: "tour-9",
       title: "Bugesera Lake Resort",
       category: "Accommodation",
       duration: "Per Night",
@@ -70,6 +128,8 @@ const Tourism = () => {
       rating: 4.8,
       reviews: 520,
       image: bugeseraLakeResort,
+      location: "Bugesera District",
+      bookingUrl: "https://www.booking.com/searchresults.html?ss=Rwanda",
     },
   ];
 
@@ -77,9 +137,48 @@ const Tourism = () => {
     "All", "Cultural", "Nature", "Adventure", "Historical", "Art"
   ];
 
+  // Filter experiences based on search and category
+  const filteredExperiences = experiences.filter((experience) => {
+    const matchesSearch = 
+      experience.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      experience.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      experience.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === "All" || 
+      experience.category.toLowerCase().includes(selectedCategory.toLowerCase());
+    
+    return matchesSearch && matchesCategory;
+  });
+
+  const handleBooking = (experience: typeof experiences[0]) => {
+    toast({
+      title: "Redirecting...",
+      description: `Taking you to book ${experience.title}`,
+    });
+    window.open(experience.bookingUrl, "_blank");
+  };
+
+  const handleHotelBooking = (hotel: { id: string; name: string; bookingUrl: string }) => {
+    toast({
+      title: "Redirecting...",
+      description: `Taking you to book ${hotel.name}`,
+    });
+    window.open(hotel.bookingUrl, "_blank");
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
-      <AppHeader title="Tourism & Experiences" subtitle="Discover the beauty of Rwanda" />
+      <AppHeader title="Tourism & Experiences" subtitle="Discover the beauty of Rwanda">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search experiences..."
+            className="pl-10 bg-background"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </AppHeader>
 
       <main className="p-4 space-y-6">
         {/* Featured Banner */}
@@ -161,8 +260,9 @@ const Tourism = () => {
           {categories.map((category) => (
             <Badge
               key={category}
-              variant={category === "All" ? "default" : "outline"}
+              variant={selectedCategory === category ? "default" : "outline"}
               className="cursor-pointer whitespace-nowrap"
+              onClick={() => setSelectedCategory(category)}
             >
               {category}
             </Badge>
@@ -177,11 +277,13 @@ const Tourism = () => {
           </div>
           <div className="grid gap-3">
             {[
-              { name: "Radisson Blu Hotel Kigali", rating: 4.8, price: "RWF 180,000", amenities: "Pool • Spa • Restaurant" },
-              { name: "Kigali Marriott Hotel", rating: 4.9, price: "RWF 200,000", amenities: "Gym • Bar • Conference" },
-              { name: "Kigali Serena Hotel", rating: 4.7, price: "RWF 175,000", amenities: "Garden • WiFi • Parking" },
-            ].map((hotel, index) => (
-              <Card key={index} className="p-4 hover:shadow-lg transition-all cursor-pointer">
+              { id: "hotel-1", name: "Radisson Blu Hotel Kigali", rating: 4.8, price: "RWF 180,000", amenities: "Pool • Spa • Restaurant", location: "Kacyiru, Kigali", bookingUrl: "https://www.booking.com/hotel/rw/radisson-blu-hotel-and-convention-center-kigali.html" },
+              { id: "hotel-2", name: "Kigali Marriott Hotel", rating: 4.9, price: "RWF 200,000", amenities: "Gym • Bar • Conference", location: "Nyarugenge, Kigali", bookingUrl: "https://www.booking.com/hotel/rw/kigali-marriott.html" },
+              { id: "hotel-3", name: "Kigali Serena Hotel", rating: 4.7, price: "RWF 175,000", amenities: "Garden • WiFi • Parking", location: "City Center, Kigali", bookingUrl: "https://www.booking.com/hotel/rw/kigali-serena.html" },
+              { id: "hotel-4", name: "The Retreat Kigali", rating: 4.9, price: "RWF 220,000", amenities: "Spa • Restaurant • Pool", location: "Kacyiru, Kigali", bookingUrl: "https://www.booking.com/hotel/rw/the-retreat-kigali.html" },
+              { id: "hotel-5", name: "Ubumwe Grand Hotel", rating: 4.6, price: "RWF 120,000", amenities: "Restaurant • WiFi • Parking", location: "City Center, Kigali", bookingUrl: "https://www.booking.com/hotel/rw/ubumwe-grand.html" },
+            ].map((hotel) => (
+              <Card key={hotel.id} className="p-4 hover:shadow-lg transition-all cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold">{hotel.name}</h3>
                   <div className="flex items-center gap-1">
@@ -192,7 +294,13 @@ const Tourism = () => {
                 <p className="text-xs text-muted-foreground mb-3">{hotel.amenities}</p>
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-primary">{hotel.price}/night</span>
-                  <Button size="sm">Book Now</Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => handleHotelBooking(hotel)}
+                  >
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    Book Now
+                  </Button>
                 </div>
               </Card>
             ))}
@@ -201,9 +309,18 @@ const Tourism = () => {
 
         {/* Experiences Grid */}
         <div className="space-y-4">
-          <h2 className="font-semibold">Popular Experiences</h2>
-          <div className="grid gap-4">
-            {experiences.map((experience, index) => (
+          <h2 className="font-semibold">
+            {filteredExperiences.length === experiences.length 
+              ? "Popular Experiences" 
+              : `Found ${filteredExperiences.length} experience${filteredExperiences.length !== 1 ? 's' : ''}`}
+          </h2>
+          {filteredExperiences.length === 0 ? (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">No experiences found. Try a different search or category.</p>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {filteredExperiences.map((experience, index) => (
               <Card key={index} className="overflow-hidden hover:shadow-lg transition-all cursor-pointer">
                 <div className="flex gap-4 p-4">
                   {/* Image */}
@@ -244,7 +361,13 @@ const Tourism = () => {
 
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-primary">{experience.price}</span>
-                      <Button size="sm" variant="outline" className="h-7">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7"
+                        onClick={() => handleBooking(experience)}
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1" />
                         Book Now
                       </Button>
                     </div>
@@ -252,7 +375,8 @@ const Tourism = () => {
                 </div>
               </Card>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       </main>
 

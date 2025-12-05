@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Car, UtensilsCrossed, MapPin, ShoppingBag, Calendar, Wallet, User, Bell } from "lucide-react";
+import { MapPin, ShoppingBag, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import ServiceCard from "@/components/ServiceCard";
@@ -11,20 +11,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const services = [
-    {
-      icon: Car,
-      title: "Rides",
-      description: "Car, moto, or bicycle on demand",
-      color: "bg-primary/10 text-primary",
-      path: "/rides",
-    },
-    {
-      icon: UtensilsCrossed,
-      title: "Food Delivery",
-      description: "Order from local restaurants & vendors",
-      color: "bg-gold/10 text-gold-foreground",
-      path: "/food",
-    },
     {
       icon: MapPin,
       title: "Tourism",
@@ -67,7 +53,7 @@ const Dashboard = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex items-center px-4">
               <div className="text-white">
                 <p className="text-sm font-medium">Explore Rwanda</p>
-                <p className="text-xs opacity-90">1000+ experiences available</p>
+                <p className="text-xs opacity-90">Tourism • Marketplace • Events</p>
               </div>
             </div>
           </div>
@@ -87,27 +73,6 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Quick Access to Wallet */}
-        <Card className="mt-6 p-6 bg-gradient-to-br from-gold/10 to-gold/5 border-gold/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gold/20 rounded-xl">
-                <Wallet className="h-6 w-6 text-gold-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Digital Wallet</h3>
-                <p className="text-sm text-muted-foreground">Balance: RWF 25,000</p>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/wallet")}
-              className="border-gold/40 hover:bg-gold/10"
-            >
-              View
-            </Button>
-          </div>
-        </Card>
       </main>
 
       <BottomNav />

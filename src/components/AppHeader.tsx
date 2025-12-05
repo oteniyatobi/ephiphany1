@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Bell, User } from "lucide-react";
+import { ArrowLeft, Bell, User, LogIn, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AppHeaderProps {
   title: string;
@@ -12,6 +13,7 @@ interface AppHeaderProps {
 
 const AppHeader = ({ title, subtitle, showBack = true, showProfile = false, children }: AppHeaderProps) => {
   const navigate = useNavigate();
+  const { isAuthenticated, logout, user } = useAuth();
 
   return (
     <header className="bg-primary text-primary-foreground px-4 py-4">
@@ -44,25 +46,54 @@ const AppHeader = ({ title, subtitle, showBack = true, showProfile = false, chil
           </div>
         </button>
 
-        {showProfile && (
-          <div className="flex gap-2">
+        <div className="flex gap-2">
+          {isAuthenticated ? (
+            <>
+              {showProfile && (
+                <>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="text-primary-foreground hover:bg-primary-foreground/10"
+                  >
+                    <Bell className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => navigate("/profile")}
+                    className="text-primary-foreground hover:bg-primary-foreground/10"
+                    title={user?.name || "Profile"}
+                  >
+                    <User className="h-5 w-5" />
+                  </Button>
+                </>
+              )}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  logout();
+                  navigate("/welcome");
+                }}
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Logout
+              </Button>
+            </>
+          ) : (
             <Button
-              size="icon"
+              size="sm"
               variant="ghost"
+              onClick={() => navigate("/login")}
               className="text-primary-foreground hover:bg-primary-foreground/10"
             >
-              <Bell className="h-5 w-5" />
+              <LogIn className="h-4 w-4 mr-1" />
+              Login
             </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => navigate("/profile")}
-              className="text-primary-foreground hover:bg-primary-foreground/10"
-            >
-              <User className="h-5 w-5" />
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
       {children}
     </header>

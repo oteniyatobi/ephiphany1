@@ -7,15 +7,36 @@ import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import AppHeader from "@/components/AppHeader";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
-  const menuItems = [
-    { icon: Settings, label: "Account Settings", path: "#" },
-    { icon: Star, label: "Rewards & Loyalty", path: "#", badge: "5 rewards" },
-    { icon: HelpCircle, label: "Help & Support", path: "#" },
-    { icon: LogOut, label: "Log Out", path: "#", variant: "destructive" },
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate("/welcome");
+  };
+
+  const menuItems: Array<{
+    icon: typeof Settings;
+    label: string;
+    path?: string;
+    badge?: string;
+    variant?: "destructive";
+    show?: boolean;
+    action?: () => void;
+  }> = [
+    { icon: Settings, label: "Account Settings", path: "#", show: isAuthenticated },
+    { icon: Star, label: "Rewards & Loyalty", path: "#", badge: "5 rewards", show: isAuthenticated },
+    { icon: HelpCircle, label: "Help & Support", path: "#", show: true },
+    { icon: LogOut, label: isAuthenticated ? "Log Out" : "Sign In", path: "#", variant: isAuthenticated ? "destructive" : undefined, show: true, action: isAuthenticated ? handleLogout : () => navigate("/login") },
   ];
 
   return (
@@ -28,33 +49,39 @@ const Profile = () => {
           <div className="flex items-start gap-4">
             <Avatar className="h-20 w-20">
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                JD
+                {user ? user.name.substring(0, 2).toUpperCase() : "GU"}
               </AvatarFallback>
             </Avatar>
             
             <div className="flex-1">
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h2 className="text-xl font-bold">John Doe</h2>
+                  <h2 className="text-xl font-bold">{user?.name || "Guest User"}</h2>
                   <Badge variant="secondary" className="mt-1">
                     <Star className="h-3 w-3 mr-1 fill-gold text-gold" />
-                    Gold Member
+                    {isAuthenticated ? "Gold Member" : "Guest"}
                   </Badge>
                 </div>
-                <Button variant="outline" size="sm">
-                  Edit
-                </Button>
+                {isAuthenticated && (
+                  <Button variant="outline" size="sm">
+                    Edit
+                  </Button>
+                )}
               </div>
               
               <div className="space-y-1 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-3 w-3" />
-                  <span>john.doe@email.com</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-3 w-3" />
-                  <span>+250 788 123 456</span>
-                </div>
+                {user?.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3 w-3" />
+                    <span>{user.email}</span>
+                  </div>
+                )}
+                {user?.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3 w-3" />
+                    <span>{user.phone}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <MapPin className="h-3 w-3" />
                   <span>Kigali, Rwanda</span>
@@ -67,16 +94,16 @@ const Profile = () => {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-primary">47</p>
-            <p className="text-xs text-muted-foreground">Total Rides</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-gold-foreground">23</p>
-            <p className="text-xs text-muted-foreground">Orders</p>
-          </Card>
-          <Card className="p-4 text-center">
             <p className="text-2xl font-bold text-green-600">12</p>
-            <p className="text-xs text-muted-foreground">Experiences</p>
+            <p className="text-xs text-muted-foreground">Tours</p>
+          </Card>
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold text-purple-600">23</p>
+            <p className="text-xs text-muted-foreground">Purchases</p>
+          </Card>
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold text-orange-600">8</p>
+            <p className="text-xs text-muted-foreground">Events</p>
           </Card>
         </div>
 
@@ -85,7 +112,7 @@ const Profile = () => {
 
         {/* Menu Items */}
         <div className="space-y-2">
-          {menuItems.map((item, index) => {
+          {menuItems.filter(item => item.show !== false).map((item, index) => {
             const Icon = item.icon;
             const isDestructive = item.variant === "destructive";
             
@@ -95,6 +122,7 @@ const Profile = () => {
                 className={`p-4 cursor-pointer hover:shadow-md transition-all ${
                   isDestructive ? "hover:border-destructive/50" : ""
                 }`}
+                onClick={item.action || (() => {})}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

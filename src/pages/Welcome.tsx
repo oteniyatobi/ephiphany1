@@ -10,6 +10,10 @@ const Welcome = () => {
   };
 
   const handleLogin = () => {
+    navigate("/login");
+  };
+
+  const handleGuest = () => {
     navigate("/dashboard");
   };
 
@@ -44,7 +48,7 @@ const Welcome = () => {
             Epiphany
           </h1>
           <p className="text-xl text-white/90 font-light">
-            Where Rwanda moves, eats, and connects
+            Discover Rwanda's culture, shop local, and experience events
           </p>
         </div>
 
@@ -62,6 +66,14 @@ const Welcome = () => {
             variant="outline"
             onClick={handleLogin}
             className="border-white text-white hover:bg-white/10"
+          >
+            Sign In
+          </Button>
+          <Button
+            size="lg"
+            variant="ghost"
+            onClick={handleGuest}
+            className="text-white/80 hover:text-white hover:bg-white/5"
           >
             Continue as Guest
           </Button>
