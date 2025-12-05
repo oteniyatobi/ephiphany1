@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiService } from "@/services/api";
 
 interface User {
   id: string;
@@ -40,72 +41,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Check if user already exists (demo - check localStorage)
-    const existingUsers = localStorage.getItem("epiphany_users");
-    const users = existingUsers ? JSON.parse(existingUsers) : [];
-    
-    if (users.find((u: User) => u.email === email)) {
-      setIsLoading(false);
-      return false; // User already exists
-    }
-    
-    if (name && email && password) {
-      const newUser: User = {
-        id: "user-" + Date.now(),
-        name: name,
-        email: email,
-        // Phone number is optional - user can add it later in profile
-      };
+    try {
+      const result = await apiService.signup(name, email, password);
       
-      // Store user in users list
-      users.push(newUser);
-      localStorage.setItem("epiphany_users", JSON.stringify(users));
-      
-      // Also store user credentials (demo only - in production use secure backend)
-      const credentials = JSON.parse(localStorage.getItem("epiphany_credentials") || "[]");
-      credentials.push({ email, password });
-      localStorage.setItem("epiphany_credentials", JSON.stringify(credentials));
-      
-      setUser(newUser);
-      localStorage.setItem("epiphany_user", JSON.stringify(newUser));
-      setIsLoading(false);
-      return true;
-    }
-    
-    setIsLoading(false);
-    return false;
-  };
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call - in real app, this would call your backend
-    setIsLoading(true);
-    
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Check credentials (demo - check localStorage)
-    const credentials = JSON.parse(localStorage.getItem("epiphany_credentials") || "[]");
-    const userCredential = credentials.find((c: { email: string; password: string }) => c.email === email);
-    
-    if (userCredential && userCredential.password === password) {
-      // Find user in users list
-      const existingUsers = localStorage.getItem("epiphany_users");
-      const users = existingUsers ? JSON.parse(existingUsers) : [];
-      const foundUser = users.find((u: User) => u.email === email);
-      
-      if (foundUser) {
-        setUser(foundUser);
-        localStorage.setItem("epiphany_user", JSON.stringify(foundUser));
+      if (result.success && result.user) {
+        setUser(result.user);
+        localStorage.setItem("epiphany_user", JSON.stringify(result.user));
         setIsLoading(false);
         return true;
       }
+      
+      setIsLoading(false);
+      return false;
+    } catch (error) {
+      console.error("Signup error:", error);
+      setIsLoading(false);
+      return false;
     }
+  };
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
     
-    setIsLoading(false);
-    return false;
+    try {
+      const result = await apiService.login(email, password);
+      
+      if (result.success && result.user) {
+        setUser(result.user);
+        localStorage.setItem("epiphany_user", JSON.stringify(result.user));
+        setIsLoading(false);
+        return true;
+      }
+      
+      setIsLoading(false);
+      return false;
+    } catch (error) {
+      console.error("Login error:", error);
+      setIsLoading(false);
+      return false;
+    }
   };
 
   const logout = () => {

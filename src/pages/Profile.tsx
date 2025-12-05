@@ -13,6 +13,7 @@ import AppHeader from "@/components/AppHeader";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { apiService } from "@/services/api";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -39,39 +40,43 @@ const Profile = () => {
     setEditLocation(user?.location || "Kigali, Rwanda");
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!user) return;
     
-    // Update user in localStorage
-    const updatedUser = {
-      ...user,
-      name: editName,
-      phone: editPhone.trim() || undefined, // Remove phone if empty
-      location: editLocation.trim() || "Kigali, Rwanda", // Default location
-    };
-    
-    // Update in users list
-    const existingUsers = localStorage.getItem("epiphany_users");
-    if (existingUsers) {
-      const users = JSON.parse(existingUsers);
-      const updatedUsers = users.map((u: typeof user) => 
-        u.email === user.email ? updatedUser : u
-      );
-      localStorage.setItem("epiphany_users", JSON.stringify(updatedUsers));
+    try {
+      const result = await apiService.updateUser(user.id, {
+        name: editName,
+        phone: editPhone.trim() || undefined,
+        location: editLocation.trim() || "Kigali, Rwanda",
+      });
+
+      if (result.success && result.user) {
+        // Update current user in localStorage
+        localStorage.setItem("epiphany_user", JSON.stringify(result.user));
+        
+        toast({
+          title: "Profile updated",
+          description: "Your profile has been successfully updated.",
+        });
+        
+        setIsEditOpen(false);
+        
+        // Reload page to reflect changes
+        window.location.reload();
+      } else {
+        toast({
+          title: "Update failed",
+          description: result.error || "Failed to update profile",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: "An error occurred while updating your profile",
+        variant: "destructive",
+      });
     }
-    
-    // Update current user
-    localStorage.setItem("epiphany_user", JSON.stringify(updatedUser));
-    
-    // Reload page to reflect changes
-    window.location.reload();
-    
-    toast({
-      title: "Profile updated",
-      description: "Your profile has been successfully updated.",
-    });
-    
-    setIsEditOpen(false);
   };
 
   const handleViewStats = (type: string) => {
