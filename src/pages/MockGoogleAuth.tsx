@@ -144,16 +144,18 @@ const MockGoogleAuth = () => {
                                                 type="email"
                                                 autoFocus
                                                 required
-                                                className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                                className="w-full px-4 py-4 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-base"
                                                 placeholder="Email or phone"
                                                 value={customEmail}
                                                 onChange={(e) => setCustomEmail(e.target.value)}
                                             />
+                                            <div className="mt-2">
+                                                <button type="button" className="text-blue-600 font-medium text-sm hover:underline">
+                                                    Forgot email?
+                                                </button>
+                                            </div>
                                         </div>
-                                        <button className="text-blue-600 font-medium text-sm hover:underline">
-                                            Forgot email?
-                                        </button>
-                                        <div className="text-xs text-gray-500 leading-relaxed">
+                                        <div className="text-sm text-gray-600 leading-relaxed pt-4">
                                             Not your computer? Use Guest mode to sign in privately.{" "}
                                             <span className="text-blue-600 cursor-pointer font-medium hover:underline">
                                                 Learn more
@@ -164,13 +166,13 @@ const MockGoogleAuth = () => {
                                         <button
                                             type="button"
                                             onClick={() => setView("list")}
-                                            className="text-blue-600 font-medium text-sm hover:bg-blue-50 px-3 py-2 rounded"
+                                            className="text-blue-600 font-medium text-sm hover:bg-blue-50 px-3 py-2 rounded transition-colors"
                                         >
                                             Create account
                                         </button>
                                         <Button
                                             type="submit"
-                                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded text-sm font-medium h-10 shadow-none"
                                         >
                                             Next
                                         </Button>
@@ -181,21 +183,21 @@ const MockGoogleAuth = () => {
                     )}
 
                     {status === "success" && (
-                        <div className="space-y-4 text-center">
-                            <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="space-y-4 text-center py-8">
+                            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <h1 className="text-xl font-medium">Signed in successfully</h1>
-                            <p className="text-sm text-gray-500">You can now close this window...</p>
+                            <h1 className="text-2xl font-normal">Welcome</h1>
+                            <p className="text-sm text-gray-600">Verification successful. Redirecting...</p>
                         </div>
                     )}
                 </div>
             </Card>
 
-            <div className="mt-8 text-xs text-gray-400">
-                High-fidelity simulation for Epiphany Demo
+            <div className="mt-8 text-xs text-gray-400 font-medium uppercase tracking-widest">
+                Google Secure Login
             </div>
         </div>
     );
