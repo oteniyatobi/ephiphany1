@@ -13,6 +13,7 @@ import Marketplace from "./pages/Marketplace";
 import Events from "./pages/Events";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import MockGoogleAuth from "./pages/MockGoogleAuth";
 
 const App = () => {
   return (
@@ -25,47 +26,48 @@ const App = () => {
             <Route path="/" element={<LoadingScreen />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/login" element={<Login />} />
-            <Route 
-              path="/dashboard" 
+            <Route
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/tourism" 
+            <Route
+              path="/tourism"
               element={
                 <ProtectedRoute>
                   <Tourism />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/marketplace" 
+            <Route
+              path="/marketplace"
               element={
                 <ProtectedRoute>
                   <Marketplace />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/events" 
+            <Route
+              path="/events"
               element={
                 <ProtectedRoute>
                   <Events />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/profile" 
+            <Route
+              path="/profile"
               element={
                 <ProtectedRoute>
                   <Profile />
                 </ProtectedRoute>
-              } 
+              }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/mock-google-auth" element={<MockGoogleAuth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

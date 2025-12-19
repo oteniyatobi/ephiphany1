@@ -1,0 +1,95 @@
+{
+  "bookings": [],
+  "users": [
+    {
+      "id": "user-1766015834489-8dev9tn6j",
+      "name": "Google User",
+      "email": "google.user1766015834357@gmail.com",
+      "phone": "",
+      "location": ""
+    },
+    {
+      "id": "user-1766016195585-px1ubjm07",
+      "name": "Google User",
+      "email": "google.user1766016195556@gmail.com",
+      "phone": "",
+      "location": ""
+    },
+    {
+      "id": "user-1766016478643-82gv9274f",
+      "name": "Google User",
+      "email": "google.user1766016478606@gmail.com",
+      "phone": "",
+      "location": ""
+    },
+    {
+      "id": "user-1766040818095-4ja0s82g5",
+      "name": "Google User",
+      "email": "google.user1766040818029@gmail.com",
+      "phone": "",
+      "location": ""
+    },
+    {
+      "id": "user-1766041472786-2cpivllap",
+      "name": "Google User",
+      "email": "google.user1766041472728@gmail.com",
+      "phone": "",
+      "location": ""
+    },
+    {
+      "id": "user-1766064330441-6su61lols",
+      "name": "Google User",
+      "email": "google.user1766064330423@gmail.com",
+      "phone": "",
+      "location": ""
+    },
+    {
+      "id": "user-1766078507434-cu62gm5la",
+      "name": "Google User",
+      "email": "google.user1766078507381@gmail.com",
+      "phone": "",
+      "location": ""
+    },
+    {
+      "id": "user-1766092911369-68uar4pih",
+      "name": "Demo User",
+      "email": "demo.user@gmail.com",
+      "phone": "",
+      "location": ""
+    }
+  ],
+  "credentials": [
+    {
+      "email": "google.user1766015834357@gmail.com",
+      "password": "google-1766015834390"
+    },
+    {
+      "email": "google.user1766016195556@gmail.com",
+      "password": "google-1766016195567"
+    },
+    {
+      "email": "google.user1766016478606@gmail.com",
+      "password": "google-1766016478617"
+    },
+    {
+      "email": "google.user1766040818029@gmail.com",
+      "password": "google-1766040818045"
+    },
+    {
+      "email": "google.user1766041472728@gmail.com",
+      "password": "google-1766041472747"
+    },
+    {
+      "email": "google.user1766064330423@gmail.com",
+      "password": "google-1766064330436"
+    },
+    {
+      "email": "google.user1766078507381@gmail.com",
+      "password": "google-1766078507417"
+    },
+    {
+      "email": "demo.user@gmail.com",
+      "password": "google-1766092911312"
+    }
+  ]
+}
