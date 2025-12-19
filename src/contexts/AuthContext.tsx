@@ -85,11 +85,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           window.removeEventListener("message", handleMessage);
 
           try {
+            const { email, name } = event.data;
+
             // 3. Create/Get user logic (simulate backend verification)
             const mockGoogleUser: User = {
               id: `google-user-${Date.now()}`,
-              name: "Demo User",
-              email: "demo.user@gmail.com",
+              name: name || "Demo User",
+              email: email || "demo.user@gmail.com",
             };
 
             // Reuse existing logic to sync with backend
@@ -98,6 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               setUser(existingUser);
               localStorage.setItem("epiphany_user", JSON.stringify(existingUser));
             } else {
+              // Sign up if user doesn't exist
               const signupResult = await apiService.signup(mockGoogleUser.name, mockGoogleUser.email, `google-${Date.now()}`);
               if (signupResult.success && signupResult.user) {
                 setUser(signupResult.user);

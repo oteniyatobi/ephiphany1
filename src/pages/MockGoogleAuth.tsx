@@ -15,12 +15,22 @@ const MockGoogleAuth = () => {
         return () => clearTimeout(timer1);
     }, []);
 
-    const handleConfirm = () => {
+    const [customEmail, setCustomEmail] = useState("");
+    const [view, setView] = useState("list"); // list, form
+
+    const handleConfirm = (email: string, name: string) => {
         setStatus("success");
 
-        // Send success message to parent window
+        // Send success message to parent window with specific email
         if (window.opener) {
-            window.opener.postMessage({ type: "GOOGLE_AUTH_SUCCESS" }, window.location.origin);
+            window.opener.postMessage(
+                {
+                    type: "GOOGLE_AUTH_SUCCESS",
+                    email: email,
+                    name: name
+                },
+                window.location.origin
+            );
 
             // Close popup after short delay
             setTimeout(() => {
@@ -28,6 +38,13 @@ const MockGoogleAuth = () => {
             }, 1000);
         } else {
             console.error("No parent window found");
+        }
+    };
+
+    const handleNext = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (customEmail) {
+            handleConfirm(customEmail, customEmail.split('@')[0]);
         }
     };
 
@@ -66,36 +83,100 @@ const MockGoogleAuth = () => {
 
                     {status === "consenting" && (
                         <div className="space-y-6 text-center w-full">
-                            <div>
-                                <h1 className="text-xl font-medium mb-2">Choose an account</h1>
-                                <p className="text-sm text-gray-500">to continue to Epiphany</p>
-                            </div>
+                            {view === "list" ? (
+                                <>
+                                    <div>
+                                        <h1 className="text-xl font-medium mb-2">Choose an account</h1>
+                                        <p className="text-sm text-gray-500">to continue to Epiphany</p>
+                                    </div>
 
-                            <div
-                                className="flex items-center gap-3 p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors text-left"
-                                onClick={handleConfirm}
-                            >
-                                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-bold">
-                                    D
-                                </div>
-                                <div className="flex-1 overflow-hidden">
-                                    <p className="font-medium text-sm truncate">Demo User</p>
-                                    <p className="text-xs text-gray-500 truncate">demo.user@gmail.com</p>
-                                </div>
-                            </div>
+                                    <div className="space-y-2">
+                                        <div
+                                            className="flex items-center gap-3 p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors text-left"
+                                            onClick={() => handleConfirm("demo.user@gmail.com", "Demo User")}
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-bold">
+                                                D
+                                            </div>
+                                            <div className="flex-1 overflow-hidden">
+                                                <p className="font-medium text-sm truncate">Demo User</p>
+                                                <p className="text-xs text-gray-500 truncate">demo.user@gmail.com</p>
+                                            </div>
+                                        </div>
 
-                            <div
-                                className="flex items-center gap-3 p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors text-left"
-                                onClick={handleConfirm}
-                            >
-                                <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center text-lg font-bold">
-                                    P
-                                </div>
-                                <div className="flex-1 overflow-hidden">
-                                    <p className="font-medium text-sm truncate">Presenter Account</p>
-                                    <p className="text-xs text-gray-500 truncate">presenter@gmail.com</p>
-                                </div>
-                            </div>
+                                        <div
+                                            className="flex items-center gap-3 p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors text-left"
+                                            onClick={() => handleConfirm("presenter@gmail.com", "Presenter Account")}
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center text-lg font-bold">
+                                                P
+                                            </div>
+                                            <div className="flex-1 overflow-hidden">
+                                                <p className="font-medium text-sm truncate">Presenter Account</p>
+                                                <p className="text-xs text-gray-500 truncate">presenter@gmail.com</p>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            className="flex items-center gap-3 p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors text-left mt-4"
+                                            onClick={() => setView("form")}
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center">
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                </svg>
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="font-medium text-sm">Use another account</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <form onSubmit={handleNext} className="space-y-6 w-full text-left">
+                                    <div className="text-center">
+                                        <h1 className="text-2xl font-normal mb-2">Sign in</h1>
+                                        <p className="text-sm text-gray-600">Use your Google Account</p>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="relative">
+                                            <input
+                                                type="email"
+                                                autoFocus
+                                                required
+                                                className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                                placeholder="Email or phone"
+                                                value={customEmail}
+                                                onChange={(e) => setCustomEmail(e.target.value)}
+                                            />
+                                        </div>
+                                        <button className="text-blue-600 font-medium text-sm hover:underline">
+                                            Forgot email?
+                                        </button>
+                                        <div className="text-xs text-gray-500 leading-relaxed">
+                                            Not your computer? Use Guest mode to sign in privately.{" "}
+                                            <span className="text-blue-600 cursor-pointer font-medium hover:underline">
+                                                Learn more
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-8">
+                                        <button
+                                            type="button"
+                                            onClick={() => setView("list")}
+                                            className="text-blue-600 font-medium text-sm hover:bg-blue-50 px-3 py-2 rounded"
+                                        >
+                                            Create account
+                                        </button>
+                                        <Button
+                                            type="submit"
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
+                                        >
+                                            Next
+                                        </Button>
+                                    </div>
+                                </form>
+                            )}
                         </div>
                     )}
 
