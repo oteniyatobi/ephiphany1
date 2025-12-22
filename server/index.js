@@ -114,53 +114,23 @@ app.post('/api/bookings', (req, res) => {
     const { userId, itemId, itemTitle, date, quantity, totalPrice, category } = req.body;
     const db = readDb();
 
-    const newBooking = {
-        id: `book-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        userId,
-        itemId,
-        itemTitle,
-        category, // 'Event' or 'Experience'
-        date,
-        quantity,
-        totalPrice,
-        status: 'confirmed',
-        createdAt: new Date().toISOString()
-    };
-
-    db.bookings.push(newBooking);
-    writeDb(db);
-
-    res.status(201).json(newBooking);
-});
-
-// Get user bookings
-app.get('/api/bookings/:userId', (req, res) => {
-    const db = readDb();
-    const userBookings = db.bookings.filter(b => b.userId === req.params.userId);
-    res.json(userBookings);
-});
-
-// Create a booking
-app.post('/api/bookings', (req, res) => {
-    const { userId, itemId, itemTitle, date, quantity, totalPrice, category } = req.body;
-    const db = readDb();
-
-    const newBooking = {
-        id: `book-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        userId,
-        itemId,
-        itemTitle,
-        category, // 'Event' or 'Experience'
-        date,
-        quantity,
-        totalPrice,
-        status: 'confirmed',
-        createdAt: new Date().toISOString()
-    };
-
     if (!db.bookings) {
         db.bookings = [];
     }
+
+    const newBooking = {
+        id: `book-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        userId,
+        itemId,
+        itemTitle,
+        category, // 'Event' or 'Experience'
+        date,
+        quantity,
+        totalPrice,
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+    };
+
     db.bookings.push(newBooking);
     writeDb(db);
 

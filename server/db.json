@@ -56,6 +56,20 @@
       "email": "demo.user@gmail.com",
       "phone": "",
       "location": ""
+    },
+    {
+      "id": "user-1766439352127-4x099ebcd",
+      "name": "Test User",
+      "email": "test@example.com",
+      "phone": "",
+      "location": ""
+    },
+    {
+      "id": "user-1766439711710-t4c04m742",
+      "name": "new.google",
+      "email": "new.google@gmail.com",
+      "phone": "",
+      "location": ""
     }
   ],
   "credentials": [
@@ -90,6 +104,14 @@
     {
       "email": "demo.user@gmail.com",
       "password": "google-1766092911312"
+    },
+    {
+      "email": "test@example.com",
+      "password": "password123"
+    },
+    {
+      "email": "new.google@gmail.com",
+      "password": "password123"
     }
   ]
 }
