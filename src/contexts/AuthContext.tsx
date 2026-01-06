@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
 import { apiService } from "@/services/api";
 
 interface User {
@@ -26,6 +27,43 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [googleResolve, setGoogleResolve] = useState<{ resolve: (val: any) => void } | null>(null);
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      try {
+        const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const googleUser = await res.json();
+        const { email, name } = googleUser;
+
+        const existingUser = await apiService.getUserByEmail(email);
+
+        if (existingUser) {
+          setUser(existingUser);
+          localStorage.setItem("epiphany_user", JSON.stringify(existingUser));
+          setIsLoading(false);
+          googleResolve?.resolve({ success: true, isNewUser: false });
+        } else {
+          setIsLoading(false);
+          googleResolve?.resolve({ success: true, isNewUser: true, email, name });
+        }
+      } catch (error) {
+        console.error("Google login error:", error);
+        setIsLoading(false);
+        googleResolve?.resolve({ success: false });
+      }
+      setGoogleResolve(null);
+    },
+    onError: () => {
+      console.error("Google Login Failed");
+      setIsLoading(false);
+      googleResolve?.resolve({ success: false });
+      setGoogleResolve(null);
+    }
+  });
 
   useEffect(() => {
     // Check if user is logged in from localStorage
@@ -64,61 +102,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loginWithGoogle = async (): Promise<{ success: boolean; isNewUser?: boolean; email?: string; name?: string }> => {
-    setIsLoading(true);
-
     return new Promise((resolve) => {
-      // 1. Open the high-fidelity mock popup
-      const width = 500;
-      const height = 600;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
-
-      const popup = window.open(
-        "/mock-google-auth",
-        "Google Sign In",
-        `width=${width},height=${height},left=${left},top=${top}`
-      );
-
-      // 2. Define message handler
-      const handleMessage = async (event: MessageEvent) => {
-        if (event.data?.type === "GOOGLE_AUTH_SUCCESS") {
-          window.removeEventListener("message", handleMessage);
-
-          try {
-            const { email, name } = event.data;
-
-            // Check if user exists
-            const existingUser = await apiService.getUserByEmail(email);
-
-            if (existingUser) {
-              // Existing user - log them in immediately
-              setUser(existingUser);
-              localStorage.setItem("epiphany_user", JSON.stringify(existingUser));
-              setIsLoading(false);
-              resolve({ success: true, isNewUser: false });
-            } else {
-              // New user - need to set password (as requested by user)
-              setIsLoading(false);
-              resolve({ success: true, isNewUser: true, email, name });
-            }
-          } catch (error) {
-            console.error("Google auth post-processing error", error);
-            setIsLoading(false);
-            resolve({ success: false });
-          }
-        }
-      };
-
-      window.addEventListener("message", handleMessage);
-
-      const checkPopup = setInterval(() => {
-        if (popup?.closed) {
-          clearInterval(checkPopup);
-          window.removeEventListener("message", handleMessage);
-          setIsLoading(false);
-          resolve({ success: false });
-        }
-      }, 1000);
+      setGoogleResolve({ resolve });
+      googleLogin();
     });
   };
 

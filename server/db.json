@@ -1,117 +1,105 @@
 {
   "bookings": [],
-  "users": [
+  "users": [],
+  "credentials": [],
+  "events": [
     {
-      "id": "user-1766015834489-8dev9tn6j",
-      "name": "Google User",
-      "email": "google.user1766015834357@gmail.com",
-      "phone": "",
-      "location": ""
+      "id": "event-1",
+      "title": "France Mpundu Concert",
+      "category": "Concert",
+      "date": "Jan 16, 2026",
+      "time": "7:00 PM",
+      "venue": "Camp Kigali",
+      "location": "Kigali",
+      "price": "RWF 10,000",
+      "image": "/src/assets/century-cinema.jpg",
+      "featured": true,
+      "ticketsLeft": 100,
+      "ticketUrl": "https://eventsbash.rw"
     },
     {
-      "id": "user-1766016195585-px1ubjm07",
-      "name": "Google User",
-      "email": "google.user1766016195556@gmail.com",
-      "phone": "",
-      "location": ""
+      "id": "event-2",
+      "title": "African Men's Handball Championship",
+      "category": "Sports",
+      "date": "Jan 21, 2026",
+      "time": "2:00 PM",
+      "venue": "BK Arena",
+      "location": "Remera, Kigali",
+      "price": "From RWF 5,000",
+      "image": "/src/assets/bk-arena.jpg",
+      "featured": true,
+      "ticketsLeft": 2000,
+      "ticketUrl": "https://ticqet.rw"
     },
     {
-      "id": "user-1766016478643-82gv9274f",
-      "name": "Google User",
-      "email": "google.user1766016478606@gmail.com",
-      "phone": "",
-      "location": ""
+      "id": "event-3",
+      "title": "Heroes Day Concert",
+      "category": "Concert",
+      "date": "Feb 1, 2026",
+      "time": "5:00 PM",
+      "venue": "Kigali Pelé Stadium",
+      "location": "Nyamirambo, Kigali",
+      "price": "RWF 5,000",
+      "image": "/src/assets/amahoro-stadium.jpg",
+      "featured": false,
+      "ticketsLeft": 3000,
+      "ticketUrl": "https://ticqet.rw/"
     },
     {
-      "id": "user-1766040818095-4ja0s82g5",
-      "name": "Google User",
-      "email": "google.user1766040818029@gmail.com",
-      "phone": "",
-      "location": ""
+      "id": "event-4",
+      "title": "Odoo Business Show Kigali",
+      "category": "Business",
+      "date": "Feb 5, 2026",
+      "time": "9:00 AM",
+      "venue": "Radisson Blu & Convention Centre",
+      "location": "Kigali",
+      "price": "Free",
+      "image": "/src/assets/radisson-blu.png",
+      "featured": true,
+      "ticketsLeft": 500,
+      "ticketUrl": "https://www.eventbrite.com"
     },
     {
-      "id": "user-1766041472786-2cpivllap",
-      "name": "Google User",
-      "email": "google.user1766041472728@gmail.com",
-      "phone": "",
-      "location": ""
+      "id": "event-5",
+      "title": "Tour du Rwanda 2026",
+      "category": "Sports",
+      "date": "Feb 22, 2026",
+      "time": "8:00 AM",
+      "venue": "Kigali Streets",
+      "location": "Rwanda",
+      "price": "Free",
+      "image": "/src/assets/lake-kivu-tour.jpg",
+      "featured": true,
+      "ticketsLeft": 0,
+      "ticketUrl": "https://www.tourdurwanda.rw"
     },
     {
-      "id": "user-1766064330441-6su61lols",
-      "name": "Google User",
-      "email": "google.user1766064330423@gmail.com",
-      "phone": "",
-      "location": ""
+      "id": "event-6",
+      "title": "ATP Challenger Tournaments",
+      "category": "Sports",
+      "date": "Mar 2, 2026",
+      "time": "10:00 AM",
+      "venue": "RP-Kigali College Kicukiro",
+      "location": "Kicukiro, Kigali",
+      "price": "RWF 2,000",
+      "image": "/src/assets/volcanoes-park.jpg",
+      "featured": false,
+      "ticketsLeft": 800,
+      "ticketUrl": "https://www.atptour.com"
     },
     {
-      "id": "user-1766078507434-cu62gm5la",
-      "name": "Google User",
-      "email": "google.user1766078507381@gmail.com",
-      "phone": "",
-      "location": ""
-    },
-    {
-      "id": "user-1766092911369-68uar4pih",
-      "name": "Demo User",
-      "email": "demo.user@gmail.com",
-      "phone": "",
-      "location": ""
-    },
-    {
-      "id": "user-1766439352127-4x099ebcd",
-      "name": "Test User",
-      "email": "test@example.com",
-      "phone": "",
-      "location": ""
-    },
-    {
-      "id": "user-1766439711710-t4c04m742",
-      "name": "new.google",
-      "email": "new.google@gmail.com",
-      "phone": "",
-      "location": ""
-    }
-  ],
-  "credentials": [
-    {
-      "email": "google.user1766015834357@gmail.com",
-      "password": "google-1766015834390"
-    },
-    {
-      "email": "google.user1766016195556@gmail.com",
-      "password": "google-1766016195567"
-    },
-    {
-      "email": "google.user1766016478606@gmail.com",
-      "password": "google-1766016478617"
-    },
-    {
-      "email": "google.user1766040818029@gmail.com",
-      "password": "google-1766040818045"
-    },
-    {
-      "email": "google.user1766041472728@gmail.com",
-      "password": "google-1766041472747"
-    },
-    {
-      "email": "google.user1766064330423@gmail.com",
-      "password": "google-1766064330436"
-    },
-    {
-      "email": "google.user1766078507381@gmail.com",
-      "password": "google-1766078507417"
-    },
-    {
-      "email": "demo.user@gmail.com",
-      "password": "google-1766092911312"
-    },
-    {
-      "email": "test@example.com",
-      "password": "password123"
-    },
-    {
-      "email": "new.google@gmail.com",
-      "password": "password123"
+      "id": "event-7",
+      "title": "Inclusive FinTech Forum",
+      "category": "Business",
+      "date": "Mar 10, 2026",
+      "time": "9:00 AM",
+      "venue": "Kigali Convention Centre",
+      "location": "Kacyiru, Kigali",
+      "price": "RWF 50,000",
+      "image": "/src/assets/radisson-blu.png",
+      "featured": true,
+      "ticketsLeft": 1200,
+      "ticketUrl": "https://www.inclusivefintechforum.com"
     }
   ]
 }

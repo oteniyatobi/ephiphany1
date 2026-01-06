@@ -40,9 +40,18 @@ const Dashboard = () => {
   ];
 
   // Get dynamic data
+  const upcomingEvents = events.filter(event => {
+    try {
+      const eventDate = new Date(event.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return eventDate >= today;
+    } catch (e) {
+      return true;
+    }
+  });
 
-
-  const featuredEvent = events.find(e => e.featured) || events[0];
+  const featuredEvent = upcomingEvents.find(e => e.featured) || upcomingEvents[0] || events[0];
   const trendingProducts = products.slice(0, 4);
   const featuredExperience = experiences[2]; // Gorilla Trekking
 

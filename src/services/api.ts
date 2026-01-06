@@ -84,6 +84,47 @@ export class ApiService {
       return null;
     }
   }
+
+  // --- Events API ---
+
+  async getEvents(): Promise<any[]> {
+    try {
+      const response = await fetch(`${API_URL}/events`);
+      if (response.ok) {
+        return await response.json();
+      }
+      return [];
+    } catch (error) {
+      console.error('Get events error:', error);
+      return [];
+    }
+  }
+
+  async createEvent(eventData: any): Promise<any> {
+    try {
+      const response = await fetch(`${API_URL}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Create event error:', error);
+      return { success: false, error: 'Network error' };
+    }
+  }
+
+  async deleteEvent(eventId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_URL}/events/${eventId}`, {
+        method: 'DELETE',
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Delete event error:', error);
+      return { success: false, error: 'Network error' };
+    }
+  }
 }
 
 export const apiService = new ApiService();

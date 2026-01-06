@@ -13,7 +13,6 @@ import Marketplace from "./pages/Marketplace";
 import Events from "./pages/Events";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
-import MockGoogleAuth from "./pages/MockGoogleAuth";
 
 const App = () => {
   return (
@@ -67,7 +66,6 @@ const App = () => {
               }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="/mock-google-auth" element={<MockGoogleAuth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

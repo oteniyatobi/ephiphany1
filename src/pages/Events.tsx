@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, MapPin, Music, Trophy, PartyPopper, Clock, Ticket, ExternalLink, Search } from "lucide-react";
+import { Calendar, MapPin, Music, Trophy, PartyPopper, Clock, Ticket, ExternalLink, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +8,10 @@ import { Input } from "@/components/ui/input";
 import BottomNav from "@/components/BottomNav";
 import AppHeader from "@/components/AppHeader";
 import { useToast } from "@/hooks/use-toast";
-import { events } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import BookingModal from "@/components/BookingModal";
 import { handleExternalLink } from "@/utils/linkHandler";
+import { apiService } from "@/services/api";
 
 const Events = () => {
   const navigate = useNavigate();
@@ -19,8 +19,20 @@ const Events = () => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoadingEvents(true);
+      const data = await apiService.getEvents();
+      setEvents(data);
+      setIsLoadingEvents(false);
+    };
+    fetchEvents();
+  }, []);
 
   const handleBookTicket = (event: typeof events[0]) => {
     if (!user) {
@@ -109,150 +121,159 @@ const Events = () => {
       </AppHeader>
 
       <main className="px-4 py-6 space-y-6">
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.map((category) => {
-            const Icon = category.icon;
-            const isSelected = selectedCategory === category.name;
-            return (
-              <Badge
-                key={category.name}
-                variant={isSelected ? "default" : "secondary"}
-                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors whitespace-nowrap px-4 py-2"
-                onClick={() => setSelectedCategory(category.name)}
-              >
-                <Icon className="h-4 w-4 mr-1" />
-                {category.name}
-              </Badge>
-            );
-          })}
-        </div>
-
-        {/* Featured Events */}
-        {filteredFeaturedEvents.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">Featured Events</h2>
+        {isLoadingEvents ? (
+          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin mb-4" />
+            <p>Loading events...</p>
+          </div>
+        ) : (
+          <>
+            {/* Categories */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {categories.map((category) => {
+                const Icon = category.icon;
+                const isSelected = selectedCategory === category.name;
+                return (
+                  <Badge
+                    key={category.name}
+                    variant={isSelected ? "default" : "secondary"}
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors whitespace-nowrap px-4 py-2"
+                    onClick={() => setSelectedCategory(category.name)}
+                  >
+                    <Icon className="h-4 w-4 mr-1" />
+                    {category.name}
+                  </Badge>
+                );
+              })}
             </div>
-            <div className="space-y-3">
-              {filteredFeaturedEvents.map((event) => (
-                <Card key={event.id} className="p-0 overflow-hidden hover:shadow-lg transition-all cursor-pointer">
-                  <div className="flex">
-                    <div className="w-24 h-24 overflow-hidden flex-shrink-0">
-                      <img
-                        src={event.image}
-                        alt={event.venue}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="font-semibold text-sm mb-1">{event.title}</h3>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            <span>{event.date}</span>
-                            <Clock className="h-3 w-3 ml-1" />
-                            <span>{event.time}</span>
+
+            {/* Featured Events */}
+            {filteredFeaturedEvents.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-semibold text-lg">Featured Events</h2>
+                </div>
+                <div className="space-y-3">
+                  {filteredFeaturedEvents.map((event) => (
+                    <Card key={event.id} className="p-0 overflow-hidden hover:shadow-lg transition-all cursor-pointer">
+                      <div className="flex">
+                        <div className="w-24 h-24 overflow-hidden flex-shrink-0">
+                          <img
+                            src={event.image}
+                            alt={event.venue}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h3 className="font-semibold text-sm mb-1">{event.title}</h3>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Calendar className="h-3 w-3" />
+                                <span>{event.date}</span>
+                                <Clock className="h-3 w-3 ml-1" />
+                                <span>{event.time}</span>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              {event.category}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                            <MapPin className="h-3 w-3" />
+                            <span>{event.venue}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-primary">{event.price}</span>
+                            <Button
+                              size="sm"
+                              className="h-7"
+                              onClick={() => handleTicketPurchase(event)}
+                            >
+                              <Ticket className="h-3 w-3 mr-1" />
+                              Buy Tickets
+                            </Button>
                           </div>
                         </div>
-                        <Badge variant="outline" className="text-xs">
-                          {event.category}
-                        </Badge>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                        <MapPin className="h-3 w-3" />
-                        <span>{event.venue}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-primary">{event.price}</span>
-                        <Button
-                          size="sm"
-                          className="h-7"
-                          onClick={() => handleTicketPurchase(event)}
-                        >
-                          <Ticket className="h-3 w-3 mr-1" />
-                          Buy Tickets
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        {/* All Events */}
-        <div className="space-y-3">
-          <h2 className="font-semibold text-lg">
-            {filteredEvents.length === events.length
-              ? "Upcoming Events"
-              : `Found ${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''}`}
-          </h2>
-          {filteredEvents.length === 0 ? (
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground">No events found. Try a different search or category.</p>
-            </Card>
-          ) : (
-            <div className="grid gap-3">
-              {filteredEvents.map((event) => (
-                <Card key={event.id} className="p-4 hover:shadow-lg transition-all cursor-pointer">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex gap-3">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                        <img
-                          src={event.image}
-                          alt={event.venue}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">{event.title}</h3>
-                        <Badge variant="outline" className="text-xs mb-2">
-                          {event.category}
-                        </Badge>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          <span>{event.date}</span>
+            {/* All Events */}
+            <div className="space-y-3">
+              <h2 className="font-semibold text-lg">
+                {filteredEvents.length === events.length
+                  ? "Upcoming Events"
+                  : `Found ${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''}`}
+              </h2>
+              {filteredEvents.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">No events found. Try a different search or category.</p>
+                </Card>
+              ) : (
+                <div className="grid gap-3">
+                  {filteredEvents.map((event) => (
+                    <Card key={event.id} className="p-4 hover:shadow-lg transition-all cursor-pointer">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex gap-3">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                            <img
+                              src={event.image}
+                              alt={event.venue}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold mb-1">{event.title}</h3>
+                            <Badge variant="outline" className="text-xs mb-2">
+                              {event.category}
+                            </Badge>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              <span>{event.date}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
-                    <MapPin className="h-3 w-3" />
-                    <span>{event.venue}, {event.location}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-semibold text-primary block">{event.price}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {event.ticketsLeft} left
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDirections(event.venue, event.location)}
-                      >
-                        <MapPin className="h-4 w-4" />
-                        Directions
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => handleTicketPurchase(event)}
-                      >
-                        <ExternalLink className="h-4 w-4 mr-1" />
-                        Buy Tickets
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
+                        <MapPin className="h-3 w-3" />
+                        <span>{event.venue}, {event.location}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-semibold text-primary block">{event.price}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {event.ticketsLeft} left
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDirections(event.venue, event.location)}
+                          >
+                            <MapPin className="h-4 w-4" />
+                            Directions
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleTicketPurchase(event)}
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            Buy Tickets
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </main>
 
       <BottomNav />

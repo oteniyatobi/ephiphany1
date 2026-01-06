@@ -145,6 +145,70 @@ app.get('/api/bookings/:userId', (req, res) => {
     res.json(userBookings);
 });
 
+// --- Events API ---
+
+// Get all events
+app.get('/api/events', (req, res) => {
+    const db = readDb();
+    let events = db.events || [];
+
+    // Filter out past events
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const upcomingEvents = events.filter(event => {
+        try {
+            const eventDate = new Date(event.date);
+            return eventDate >= today;
+        } catch (e) {
+            return true; // Keep if date is unparseable for some reason
+        }
+    });
+
+    res.json(upcomingEvents);
+});
+
+// Create a new event
+app.post('/api/events', (req, res) => {
+    const newEvent = req.body;
+    const db = readDb();
+
+    if (!db.events) db.events = [];
+
+    // Simple validation
+    if (!newEvent.title || !newEvent.date) {
+        return res.status(400).json({ success: false, error: 'Title and date are required' });
+    }
+
+    const eventWithId = {
+        id: `event-${Date.now()}`,
+        ...newEvent
+    };
+
+    db.events.push(eventWithId);
+    writeDb(db);
+
+    res.status(201).json(eventWithId);
+});
+
+// Delete an event
+app.delete('/api/events/:id', (req, res) => {
+    const { id } = req.params;
+    const db = readDb();
+
+    if (!db.events) return res.status(404).json({ success: false, error: 'No events found' });
+
+    const eventIndex = db.events.findIndex(e => e.id === id);
+    if (eventIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Event not found' });
+    }
+
+    db.events.splice(eventIndex, 1);
+    writeDb(db);
+
+    res.json({ success: true, message: 'Event deleted' });
+});
+
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
