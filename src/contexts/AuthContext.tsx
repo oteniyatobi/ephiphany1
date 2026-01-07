@@ -13,10 +13,10 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (firstName: string, lastName: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (firstName: string, lastName: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; isNewUser?: boolean; email?: string; name?: string }>;
-  completeGoogleSignup: (email: string, name: string, password: string) => Promise<boolean>;
+  completeGoogleSignup: (email: string, name: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  const signup = async (firstName: string, lastName: string, email: string, password: string): Promise<boolean> => {
+  const signup = async (firstName: string, lastName: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
 
     try {
@@ -89,15 +89,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(result.user);
         localStorage.setItem("epiphany_user", JSON.stringify(result.user));
         setIsLoading(false);
-        return true;
+        return { success: true };
       }
 
       setIsLoading(false);
-      return false;
+      return { success: false, error: result.error };
     } catch (error) {
       console.error("Signup error:", error);
       setIsLoading(false);
-      return false;
+      return { success: false, error: "Network error occurred" };
     }
   };
 
@@ -108,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const completeGoogleSignup = async (email: string, name: string, password: string): Promise<boolean> => {
+  const completeGoogleSignup = async (email: string, name: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     try {
       const result = await apiService.signup(name, email, password);
@@ -116,18 +116,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(result.user);
         localStorage.setItem("epiphany_user", JSON.stringify(result.user));
         setIsLoading(false);
-        return true;
+        return { success: true };
       }
       setIsLoading(false);
-      return false;
+      return { success: false, error: result.error };
     } catch (error) {
       console.error("Complete Google signup error:", error);
       setIsLoading(false);
-      return false;
+      return { success: false, error: "Network error occurred" };
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
 
     try {
@@ -137,15 +137,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(result.user);
         localStorage.setItem("epiphany_user", JSON.stringify(result.user));
         setIsLoading(false);
-        return true;
+        return { success: true };
       }
 
       setIsLoading(false);
-      return false;
+      return { success: false, error: result.error };
     } catch (error) {
       console.error("Login error:", error);
       setIsLoading(false);
-      return false;
+      return { success: false, error: "Network error occurred" };
     }
   };
 

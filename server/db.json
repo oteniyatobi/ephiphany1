@@ -1,7 +1,20 @@
 {
   "bookings": [],
-  "users": [],
-  "credentials": [],
+  "users": [
+    {
+      "id": "user-1767738670725-lvmodf89e",
+      "name": "Test User",
+      "email": "test@test.com",
+      "phone": "",
+      "location": ""
+    }
+  ],
+  "credentials": [
+    {
+      "email": "test@test.com",
+      "password": "password123"
+    }
+  ],
   "events": [
     {
       "id": "event-1",

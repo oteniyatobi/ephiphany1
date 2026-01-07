@@ -18,9 +18,17 @@ app.use(express.static(path.join(__dirname, '../dist')));
 const readDb = () => {
     try {
         const data = fs.readFileSync(DB_FILE, 'utf8');
-        return JSON.parse(data);
+        const parsed = JSON.parse(data);
+        // Ensure essential fields exist
+        return {
+            bookings: parsed.bookings || [],
+            users: parsed.users || [],
+            credentials: parsed.credentials || [],
+            events: parsed.events || []
+        };
     } catch (err) {
-        return { users: [], credentials: [] };
+        console.error('Error reading database file, returning defaults. Data may be lost!', err);
+        return { bookings: [], users: [], credentials: [], events: [] };
     }
 };
 
@@ -31,15 +39,18 @@ const writeDb = (data) => {
 
 // Signup Endpoint
 app.post('/api/auth/signup', (req, res) => {
+    console.log('Signup request received:', req.body);
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
+        console.log('Signup failed: missing fields');
         return res.status(400).json({ success: false, error: 'All fields are required' });
     }
 
     const db = readDb();
 
     if (db.credentials.find(c => c.email === email)) {
+        console.log('Signup failed: user already exists', email);
         return res.status(400).json({ success: false, error: 'User already exists' });
     }
 
@@ -60,18 +71,22 @@ app.post('/api/auth/signup', (req, res) => {
 
 // Login Endpoint
 app.post('/api/auth/login', (req, res) => {
+    console.log('Login request received:', req.body.email);
     const { email, password } = req.body;
     const db = readDb();
 
     const credential = db.credentials.find(c => c.email === email);
 
     if (!credential || credential.password !== password) {
+        console.log('Login failed: invalid credentials', email);
         return res.status(401).json({ success: false, error: 'Invalid email or password' });
     }
 
     const user = db.users.find(u => u.email === email);
+    console.log('Login successful:', email);
 
     if (!user) {
+        console.log('Login failed: user record missing for', email);
         return res.status(404).json({ success: false, error: 'User record not found' });
     }
 

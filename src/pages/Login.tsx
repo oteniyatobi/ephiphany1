@@ -28,10 +28,10 @@ const Login = () => {
     setIsLoading(true);
 
     if (isSignUp) {
-      const success = await signup(firstName, lastName, email, password);
+      const result = await signup(firstName, lastName, email, password);
       setIsLoading(false);
 
-      if (success) {
+      if (result.success) {
         toast({
           title: "Account created!",
           description: "Welcome to Epiphany! You can now explore Rwanda.",
@@ -40,15 +40,15 @@ const Login = () => {
       } else {
         toast({
           title: "Sign up failed",
-          description: "Email already exists. Please try logging in instead.",
+          description: result.error || "Please try a different email or check your connection.",
           variant: "destructive",
         });
       }
     } else {
-      const success = await login(email, password);
+      const result = await login(email, password);
       setIsLoading(false);
 
-      if (success) {
+      if (result.success) {
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
@@ -57,7 +57,7 @@ const Login = () => {
       } else {
         toast({
           title: "Login failed",
-          description: "Please check your email and password.",
+          description: result.error || "Please check your email and password.",
           variant: "destructive",
         });
       }
@@ -106,10 +106,10 @@ const Login = () => {
     if (!pendingGoogleUser) return;
 
     setIsLoading(true);
-    const success = await completeGoogleSignup(pendingGoogleUser.email, pendingGoogleUser.name, password);
+    const result = await completeGoogleSignup(pendingGoogleUser.email, pendingGoogleUser.name, password);
     setIsLoading(false);
 
-    if (success) {
+    if (result.success) {
       toast({
         title: "Registration complete!",
         description: "Your account is now ready.",
@@ -118,7 +118,7 @@ const Login = () => {
     } else {
       toast({
         title: "Error",
-        description: "Failed to complete registration. Please try again.",
+        description: result.error || "Failed to complete registration. Please try again.",
         variant: "destructive",
       });
     }
