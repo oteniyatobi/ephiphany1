@@ -125,6 +125,75 @@ export class ApiService {
       return { success: false, error: 'Network error' };
     }
   }
+
+  // --- Products API ---
+
+  async getProducts(): Promise<any[]> {
+    try {
+      const response = await fetch(`${API_URL}/products`);
+      if (response.ok) {
+        return await response.json();
+      }
+      return [];
+    } catch (error) {
+      console.error('Get products error:', error);
+      return [];
+    }
+  }
+
+  async getUserProducts(userId: string): Promise<any[]> {
+    try {
+      const response = await fetch(`${API_URL}/products/user/${userId}`);
+      if (response.ok) {
+        return await response.json();
+      }
+      return [];
+    } catch (error) {
+      console.error('Get user products error:', error);
+      return [];
+    }
+  }
+
+  async createProduct(productData: any): Promise<any> {
+    try {
+      const response = await fetch(`${API_URL}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Create product error:', error);
+      return { success: false, error: 'Network error' };
+    }
+  }
+
+  async deleteProduct(productId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_URL}/products/${productId}`, {
+        method: 'DELETE',
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Delete product error:', error);
+      return { success: false, error: 'Network error' };
+    }
+  }
+
+  // --- Experiences API ---
+
+  async getExperiences(): Promise<any[]> {
+    try {
+      const response = await fetch(`${API_URL}/experiences`);
+      if (response.ok) {
+        return await response.json();
+      }
+      return [];
+    } catch (error) {
+      console.error('Get experiences error:', error);
+      return [];
+    }
+  }
 }
 
 export const apiService = new ApiService();

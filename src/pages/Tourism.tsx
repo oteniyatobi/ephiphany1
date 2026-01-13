@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleExternalLink } from "@/utils/linkHandler";
-import { MapPin, Clock, Users, Star, Calendar, Plus, Sparkles, ExternalLink, Search } from "lucide-react";
+import { MapPin, Clock, Users, Star, Calendar, Plus, Sparkles, ExternalLink, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,16 +9,9 @@ import { Input } from "@/components/ui/input";
 import BottomNav from "@/components/BottomNav";
 import AppHeader from "@/components/AppHeader";
 import { useToast } from "@/hooks/use-toast";
-import { experiences, hotels } from "@/data/mockData";
+import { experiences as mockExperiences, hotels } from "@/data/mockData";
+import { apiService } from "@/services/api";
 import bannerImage from "@/assets/rwanda-tourism-banner.jpg";
-import genocideMemorial from "@/assets/genocide-memorial.jpg";
-import nyamataMemorial from "@/assets/nyamata-memorial.jpg";
-import volcanoesPark from "@/assets/volcanoes-park.jpg";
-import lakeKivuTour from "@/assets/lake-kivu-tour.jpg";
-import inemaArtsCenter from "@/assets/inema-arts-center.jpg";
-import bugeseraLakeResort from "@/assets/bugesera-lake-resort.jpg";
-import kigaliCity from "@/assets/kigali-city.jpg";
-import kigaliHero from "@/assets/kigali-hero.jpg";
 
 // Data moved to shared file
 
@@ -27,13 +20,30 @@ const Tourism = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [experiences, setExperiences] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchExperiences = async () => {
+      setIsLoading(true);
+      try {
+        const data = await apiService.getExperiences();
+        setExperiences(data.length > 0 ? data : mockExperiences);
+      } catch (error) {
+        setExperiences(mockExperiences);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchExperiences();
+  }, []);
 
   const categories = [
     "All", "Cultural", "Nature", "Adventure", "Historical", "Art"
   ];
 
   // Filter experiences based on search and category
-  const filteredExperiences = experiences.filter((experience) => {
+  const filteredExperiences = (experiences || []).filter((experience) => {
     const matchesSearch =
       experience.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       experience.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -45,7 +55,7 @@ const Tourism = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleBooking = (experience: typeof experiences[0], e?: React.MouseEvent) => {
+  const handleBooking = (experience: any, e?: React.MouseEvent) => {
     handleExternalLink(experience.bookingUrl, `Booking ${experience.title}`, e);
   };
 
@@ -273,7 +283,13 @@ const Tourism = () => {
               ? "Popular Experiences"
               : `Found ${filteredExperiences.length} experience${filteredExperiences.length !== 1 ? 's' : ''}`}
           </h2>
-          {filteredExperiences.length === 0 ? (
+
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <Loader2 className="h-8 w-8 animate-spin mb-4 text-primary" />
+              <p>Discovering experiences...</p>
+            </div>
+          ) : filteredExperiences.length === 0 ? (
             <Card className="p-6 sm:p-8 text-center">
               <p className="text-muted-foreground text-sm sm:text-base">No experiences found. Try a different search or category.</p>
             </Card>

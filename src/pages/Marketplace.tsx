@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Award, Star, TrendingUp, ExternalLink } from "lucide-react";
+import { Search, Award, Star, TrendingUp, ExternalLink, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import AppHeader from "@/components/AppHeader";
 import { useToast } from "@/hooks/use-toast";
-import { products } from "@/data/mockData";
+import { products as mockProducts } from "@/data/mockData";
 import { handleExternalLink } from "@/utils/linkHandler";
+import { apiService } from "@/services/api";
 import aziziLife from "@/assets/azizi-life.jpg";
 import hagariRwanda from "@/assets/hagari-rwanda.jpg";
 import imigongoArt from "@/assets/imigongo-art.jpg";
@@ -19,9 +20,21 @@ const Marketplace = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // ... inside Marketplace component
-  const handlePurchase = (product: typeof products[0], e?: React.MouseEvent) => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      const data = await apiService.getProducts();
+      // Combine with mock if backend is empty for better demo, or just use backend
+      setProducts(data.length > 0 ? data : mockProducts);
+      setIsLoading(false);
+    };
+    fetchProducts();
+  }, []);
+
+  const handlePurchase = (product: any, e?: React.MouseEvent) => {
     handleExternalLink(product.purchaseUrl, `Buying ${product.name}`, e);
   };
 
@@ -48,14 +61,23 @@ const Marketplace = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <AppHeader title="Marketplace" subtitle="Support local businesses">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search products..."
-            className="pl-10 bg-background"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="flex flex-col gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search products..."
+              className="pl-10 bg-background"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <Button
+            className="w-full bg-gold hover:bg-gold/90 text-gold-foreground gap-2"
+            onClick={() => navigate('/sell')}
+          >
+            <Plus className="h-4 w-4" />
+            Sell Your Product
+          </Button>
         </div>
       </AppHeader>
 
@@ -154,12 +176,28 @@ const Marketplace = () => {
 
         {/* Products Grid */}
         <div className="space-y-4">
-          <h2 className="font-semibold">
-            {filteredProducts.length === products.length
-              ? "Local Products"
-              : `Found ${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''}`}
-          </h2>
-          {filteredProducts.length === 0 ? (
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold">
+              {filteredProducts.length === products.length
+                ? "Local Products"
+                : `Found ${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''}`}
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => navigate('/my-ads')}
+            >
+              My Ads
+            </Button>
+          </div>
+
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <Loader2 className="h-8 w-8 animate-spin mb-4 text-primary" />
+              <p>Fetching amazing products...</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <Card className="p-8 text-center">
               <p className="text-muted-foreground">No products found. Try a different search or category.</p>
             </Card>

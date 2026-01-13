@@ -2,117 +2,130 @@
   "bookings": [],
   "users": [
     {
-      "id": "user-1767738670725-lvmodf89e",
+      "id": "user-1768306799743-ph6sht8hi",
       "name": "Test User",
-      "email": "test@test.com",
+      "email": "testuser@example.com",
       "phone": "",
       "location": ""
     }
   ],
   "credentials": [
     {
-      "email": "test@test.com",
-      "password": "password123"
+      "email": "testuser@example.com",
+      "password": "Password123!"
     }
   ],
-  "events": [
+  "events": [],
+  "products": [
     {
-      "id": "event-1",
-      "title": "France Mpundu Concert",
-      "category": "Concert",
-      "date": "Jan 16, 2026",
-      "time": "7:00 PM",
-      "venue": "Camp Kigali",
-      "location": "Kigali",
-      "price": "RWF 10,000",
-      "image": "/src/assets/century-cinema.jpg",
-      "featured": true,
-      "ticketsLeft": 100,
-      "ticketUrl": "https://eventsbash.rw"
+      "id": "prod-1",
+      "name": "Hagari Rwanda Basket",
+      "category": "Handcrafts",
+      "price": "RWF 40,000",
+      "seller": "Hagari Rwanda",
+      "image": "https://images.unsplash.com/photo-1544923246-77307dd654ca?w=800&auto=format&fit=crop&q=60",
+      "description": "Beautiful handwoven traditional Rwandan basket made from natural fibers. Perfect for home decoration or as a gift.",
+      "purchaseUrl": "https://www.etsy.com/search?q=rwanda+peace+basket+agaseke"
     },
     {
-      "id": "event-2",
-      "title": "African Men's Handball Championship",
-      "category": "Sports",
-      "date": "Jan 21, 2026",
-      "time": "2:00 PM",
-      "venue": "BK Arena",
-      "location": "Remera, Kigali",
-      "price": "From RWF 5,000",
-      "image": "/src/assets/bk-arena.jpg",
-      "featured": true,
-      "ticketsLeft": 2000,
-      "ticketUrl": "https://ticqet.rw"
+      "id": "prod-2",
+      "name": "Imigongo Art Piece",
+      "category": "Art",
+      "price": "RWF 65,000",
+      "seller": "Rwanda Heritage",
+      "image": "https://images.unsplash.com/photo-1590483736622-39da8af75bba?w=800&auto=format&fit=crop&q=60",
+      "description": "Authentic Imigongo art featuring traditional geometric patterns. Handcrafted using cow dung and natural pigments, representing Rwanda's unique artistic heritage.",
+      "purchaseUrl": "https://www.etsy.com/search?q=imigongo+art+rwanda"
     },
     {
-      "id": "event-3",
-      "title": "Heroes Day Concert",
-      "category": "Concert",
-      "date": "Feb 1, 2026",
-      "time": "5:00 PM",
-      "venue": "Kigali Pelé Stadium",
-      "location": "Nyamirambo, Kigali",
+      "id": "prod-3",
+      "name": "Rwanda Coffee Beans (1kg)",
+      "category": "Food & Beverage",
+      "price": "RWF 12,000",
+      "seller": "Akagera Coffee",
+      "image": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&auto=format&fit=crop&q=60",
+      "description": "Premium Rwandan coffee beans from the Akagera region. Known for their smooth, rich flavor with notes of citrus and chocolate. Perfect for coffee enthusiasts.",
+      "purchaseUrl": "https://www.amazon.com/s?k=rwanda+coffee+beans"
+    },
+    {
+      "id": "prod-4",
+      "name": "Kitenge Fabric (2m)",
+      "category": "Textiles",
+      "price": "RWF 25,000",
+      "seller": "Fashion Rwanda",
+      "image": "https://images.unsplash.com/photo-1523464862212-d6631d073194?w=800&auto=format&fit=crop&q=60",
+      "description": "Vibrant Kitenge fabric featuring traditional African patterns. Perfect for making clothing, accessories, or home décor. High-quality cotton blend.",
+      "purchaseUrl": "https://www.etsy.com/search?q=kitenge+ankara+fabric"
+    },
+    {
+      "id": "prod-5",
+      "name": "Wooden Sculpture",
+      "category": "Handcrafts",
+      "price": "RWF 35,000",
+      "seller": "Azizi Life",
+      "image": "https://images.unsplash.com/photo-1629196914068-3974239c67cc?w=800&auto=format&fit=crop&q=60",
+      "description": "Hand-carved wooden sculpture showcasing traditional Rwandan craftsmanship. Made from sustainably sourced local wood, each piece is unique.",
+      "purchaseUrl": "https://www.etsy.com/search?q=rwandan+wooden+sculpture"
+    },
+    {
+      "id": "prod-6",
+      "name": "Pure Rwanda Honey (500g)",
+      "category": "Food & Beverage",
+      "price": "RWF 8,000",
+      "seller": "Pure Rwanda",
+      "image": "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&auto=format&fit=crop&q=60",
+      "description": "100% pure, raw honey harvested from Rwanda's pristine forests. Rich in flavor and natural enzymes. Unprocessed and unfiltered for maximum health benefits.",
+      "purchaseUrl": "https://www.amazon.com/s?k=rwanda+honey"
+    }
+  ],
+  "experiences": [
+    {
+      "id": "tour-1",
+      "title": "Kigali Genocide Memorial",
+      "category": "Cultural Heritage",
+      "duration": "2-3 hours",
+      "price": "Free",
+      "rating": 4.9,
+      "reviews": 1200,
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=60",
+      "location": "Gisozi, Kigali",
+      "bookingUrl": "https://kgm.rw/visit"
+    },
+    {
+      "id": "tour-2",
+      "title": "Nyamata Church Memorial",
+      "category": "Historical Site",
+      "duration": "Half Day",
+      "price": "RWF 15,000",
+      "rating": 4.8,
+      "reviews": 850,
+      "image": "https://images.unsplash.com/photo-1548013146-72479768bbaa?w=800&auto=format&fit=crop&q=60",
+      "location": "Nyamata, Bugesera",
+      "bookingUrl": "https://www.visitrwanda.com/interests/memorials/"
+    },
+    {
+      "id": "tour-3",
+      "title": "Volcanoes National Park - Gorilla Trekking",
+      "category": "Nature & Wildlife",
+      "duration": "Full Day",
+      "price": "RWF 2,000,000",
+      "rating": 5,
+      "reviews": 2100,
+      "image": "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&auto=format&fit=crop&q=60",
+      "location": "Musanze District",
+      "bookingUrl": "https://irembo.gov.rw/home/citizen/all_services"
+    },
+    {
+      "id": "tour-4",
+      "title": "Inema Arts Center",
+      "category": "Art & Culture",
+      "duration": "1-2 hours",
       "price": "RWF 5,000",
-      "image": "/src/assets/amahoro-stadium.jpg",
-      "featured": false,
-      "ticketsLeft": 3000,
-      "ticketUrl": "https://ticqet.rw/"
-    },
-    {
-      "id": "event-4",
-      "title": "Odoo Business Show Kigali",
-      "category": "Business",
-      "date": "Feb 5, 2026",
-      "time": "9:00 AM",
-      "venue": "Radisson Blu & Convention Centre",
-      "location": "Kigali",
-      "price": "Free",
-      "image": "/src/assets/radisson-blu.png",
-      "featured": true,
-      "ticketsLeft": 500,
-      "ticketUrl": "https://www.eventbrite.com"
-    },
-    {
-      "id": "event-5",
-      "title": "Tour du Rwanda 2026",
-      "category": "Sports",
-      "date": "Feb 22, 2026",
-      "time": "8:00 AM",
-      "venue": "Kigali Streets",
-      "location": "Rwanda",
-      "price": "Free",
-      "image": "/src/assets/lake-kivu-tour.jpg",
-      "featured": true,
-      "ticketsLeft": 0,
-      "ticketUrl": "https://www.tourdurwanda.rw"
-    },
-    {
-      "id": "event-6",
-      "title": "ATP Challenger Tournaments",
-      "category": "Sports",
-      "date": "Mar 2, 2026",
-      "time": "10:00 AM",
-      "venue": "RP-Kigali College Kicukiro",
-      "location": "Kicukiro, Kigali",
-      "price": "RWF 2,000",
-      "image": "/src/assets/volcanoes-park.jpg",
-      "featured": false,
-      "ticketsLeft": 800,
-      "ticketUrl": "https://www.atptour.com"
-    },
-    {
-      "id": "event-7",
-      "title": "Inclusive FinTech Forum",
-      "category": "Business",
-      "date": "Mar 10, 2026",
-      "time": "9:00 AM",
-      "venue": "Kigali Convention Centre",
+      "rating": 4.7,
+      "reviews": 420,
+      "image": "https://images.unsplash.com/photo-1460661419201-fd4ce186860d?w=800&auto=format&fit=crop&q=60",
       "location": "Kacyiru, Kigali",
-      "price": "RWF 50,000",
-      "image": "/src/assets/radisson-blu.png",
-      "featured": true,
-      "ticketsLeft": 1200,
-      "ticketUrl": "https://www.inclusivefintechforum.com"
+      "bookingUrl": "https://www.visitrwanda.com/interests/heritage-and-culture/"
     }
   ]
 }

@@ -10,5 +10,11 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const isFirebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
+
+if (!isFirebaseConfigured) {
+    console.warn("Firebase API key is missing. Authentication will fall back to local mode.");
+}
+
+const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null;
+export const auth = app ? getAuth(app) : null;

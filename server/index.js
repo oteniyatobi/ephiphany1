@@ -24,11 +24,13 @@ const readDb = () => {
             bookings: parsed.bookings || [],
             users: parsed.users || [],
             credentials: parsed.credentials || [],
-            events: parsed.events || []
+            events: parsed.events || [],
+            products: parsed.products || [],
+            experiences: parsed.experiences || []
         };
     } catch (err) {
         console.error('Error reading database file, returning defaults. Data may be lost!', err);
-        return { bookings: [], users: [], credentials: [], events: [] };
+        return { bookings: [], users: [], credentials: [], events: [], products: [], experiences: [] };
     }
 };
 
@@ -37,7 +39,68 @@ const writeDb = (data) => {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 };
 
-// Signup Endpoint
+// --- Products API ---
+
+// Get all products
+app.get('/api/products', (req, res) => {
+    const db = readDb();
+    res.json(db.products || []);
+});
+
+// Get products by user (for "My Ads")
+app.get('/api/products/user/:userId', (req, res) => {
+    const { userId } = req.params;
+    const db = readDb();
+    const userProducts = (db.products || []).filter(p => p.vendorId === userId);
+    res.json(userProducts);
+});
+
+// Create a new product
+app.post('/api/products', (req, res) => {
+    const productData = req.body;
+    const db = readDb();
+
+    if (!db.products) db.products = [];
+
+    const newProduct = {
+        id: `prod-${Date.now()}`,
+        ...productData,
+        createdAt: new Date().toISOString()
+    };
+
+    db.products.push(newProduct);
+    writeDb(db);
+
+    res.status(201).json(newProduct);
+});
+
+// Delete a product
+app.delete('/api/products/:id', (req, res) => {
+    const { id } = req.params;
+    const db = readDb();
+
+    if (!db.products) return res.status(404).json({ success: false, error: 'No products found' });
+
+    const productIndex = db.products.findIndex(p => p.id === id);
+    if (productIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+
+    db.products.splice(productIndex, 1);
+    writeDb(db);
+
+    res.json({ success: true, message: 'Product deleted' });
+});
+
+// --- Experiences API ---
+
+// Get all experiences
+app.get('/api/experiences', (req, res) => {
+    const db = readDb();
+    res.json(db.experiences || []);
+});
+
+// --- Signup Endpoint ---
 app.post('/api/auth/signup', (req, res) => {
     console.log('Signup request received:', req.body);
     const { name, email, password } = req.body;
