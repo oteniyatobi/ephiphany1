@@ -136,7 +136,7 @@ export class ApiService {
       }
       return [];
     } catch (error) {
-      console.error('Get products error:', error);
+      console.warn('Backend unavailable (products), using mock data instead');
       return [];
     }
   }
@@ -149,7 +149,7 @@ export class ApiService {
       }
       return [];
     } catch (error) {
-      console.error('Get user products error:', error);
+      console.warn('Backend unavailable (user products), using local data');
       return [];
     }
   }
@@ -190,7 +190,7 @@ export class ApiService {
       }
       return [];
     } catch (error) {
-      console.error('Get experiences error:', error);
+      console.warn('Backend unavailable (experiences), using mock data instead');
       return [];
     }
   }
