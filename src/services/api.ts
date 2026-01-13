@@ -1,7 +1,4 @@
-// API service for authentication
-// Connects to the local Express backend
-
-const API_URL = '/api';
+import { supabase } from "@/lib/supabase";
 
 interface User {
   id: string;
@@ -15,72 +12,83 @@ export class ApiService {
 
   async signup(name: string, email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> {
     try {
-      const response = await fetch(`${API_URL}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await response.json();
-      return data;
+      // In Supabase, the Auth signUp handles the account creation. 
+      // We use this method to sync the profile to our public.users table if needed.
+      const { data, error } = await supabase
+        .from('users')
+        .upsert({ name, email })
+        .select()
+        .single();
+
+      if (error) {
+        console.warn('Profile sync to users table failed:', error.message);
+        return { success: true }; // Still return true if auth succeeded but profile sync failed
+      }
+
+      return { success: true, user: data as User };
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Signup sync error:', error);
       return { success: false, error: 'Network error occurred' };
     }
   }
 
   async login(email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> {
+    // Supabase Auth handles login. This method can optionally fetch the profile.
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      return data;
+      const user = await this.getUserByEmail(email);
+      return { success: true, user: user || undefined };
     } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: 'Network error occurred' };
+      return { success: false, error: 'Failed to fetch user profile' };
     }
   }
 
   async updateUser(userId: string, updates: Partial<User>): Promise<{ success: boolean; user?: User; error?: string }> {
     try {
-      const response = await fetch(`${API_URL}/users/${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      const data = await response.json();
-      return data;
-    } catch (error) {
+      const { data, error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, user: data as User };
+    } catch (error: any) {
       console.error('Update user error:', error);
-      return { success: false, error: 'Network error occurred' };
+      return { success: false, error: error.message };
     }
   }
 
   static async createBooking(bookingData: any) {
-    const response = await fetch(`${API_URL}/bookings`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bookingData),
-    });
-    return await response.json();
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert(bookingData)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   }
 
   static async getUserBookings(userId: string) {
-    const response = await fetch(`${API_URL}/bookings/${userId}`);
-    return await response.json();
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('userId', userId);
+    if (error) throw error;
+    return data;
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
     try {
-      const response = await fetch(`${API_URL}/users/email/${email}`);
-      if (response.ok) {
-        return await response.json();
-      }
-      return null;
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (error) return null;
+      return data as User;
     } catch (error) {
-      console.error('Get user error:', error);
       return null;
     }
   }
@@ -89,40 +97,46 @@ export class ApiService {
 
   async getEvents(): Promise<any[]> {
     try {
-      const response = await fetch(`${API_URL}/events`);
-      if (response.ok) {
-        return await response.json();
+      const { data, error } = await supabase
+        .from('events')
+        .select('*');
+
+      if (error || !data || data.length === 0) {
+        console.warn('Supabase events table empty or unavailable, using fallback');
+        return [];
       }
-      return [];
+      return data;
     } catch (error) {
-      console.error('Get events error:', error);
       return [];
     }
   }
 
   async createEvent(eventData: any): Promise<any> {
     try {
-      const response = await fetch(`${API_URL}/events`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventData),
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Create event error:', error);
-      return { success: false, error: 'Network error' };
+      const { data, error } = await supabase
+        .from('events')
+        .insert(eventData)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
   }
 
   async deleteEvent(eventId: string): Promise<any> {
     try {
-      const response = await fetch(`${API_URL}/events/${eventId}`, {
-        method: 'DELETE',
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Delete event error:', error);
-      return { success: false, error: 'Network error' };
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', eventId);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
   }
 
@@ -130,53 +144,59 @@ export class ApiService {
 
   async getProducts(): Promise<any[]> {
     try {
-      const response = await fetch(`${API_URL}/products`);
-      if (response.ok) {
-        return await response.json();
+      const { data, error } = await supabase
+        .from('products')
+        .select('*');
+
+      if (error || !data || data.length === 0) {
+        return [];
       }
-      return [];
+      return data;
     } catch (error) {
-      console.warn('Backend unavailable (products), using mock data instead');
       return [];
     }
   }
 
   async getUserProducts(userId: string): Promise<any[]> {
     try {
-      const response = await fetch(`${API_URL}/products/user/${userId}`);
-      if (response.ok) {
-        return await response.json();
-      }
-      return [];
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('vendor_id', userId);
+
+      if (error) return [];
+      return data;
     } catch (error) {
-      console.warn('Backend unavailable (user products), using local data');
       return [];
     }
   }
 
   async createProduct(productData: any): Promise<any> {
     try {
-      const response = await fetch(`${API_URL}/products`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData),
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Create product error:', error);
-      return { success: false, error: 'Network error' };
+      const { data, error } = await supabase
+        .from('products')
+        .insert(productData)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
   }
 
   async deleteProduct(productId: string): Promise<any> {
     try {
-      const response = await fetch(`${API_URL}/products/${productId}`, {
-        method: 'DELETE',
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Delete product error:', error);
-      return { success: false, error: 'Network error' };
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
   }
 
@@ -184,13 +204,15 @@ export class ApiService {
 
   async getExperiences(): Promise<any[]> {
     try {
-      const response = await fetch(`${API_URL}/experiences`);
-      if (response.ok) {
-        return await response.json();
+      const { data, error } = await supabase
+        .from('experiences')
+        .select('*');
+
+      if (error || !data || data.length === 0) {
+        return [];
       }
-      return [];
+      return data;
     } catch (error) {
-      console.warn('Backend unavailable (experiences), using mock data instead');
       return [];
     }
   }

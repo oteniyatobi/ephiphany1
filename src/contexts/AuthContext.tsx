@@ -1,15 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  GoogleAuthProvider,
-  signInWithPopup,
-  updateProfile
-} from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 import { apiService } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 
@@ -40,130 +30,101 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for local session first if we're in fallback mode
+    // Check for local session first
     const storedUser = localStorage.getItem('epiphany_user');
-    if (storedUser && !auth) {
+    if (storedUser) {
       setUser(JSON.parse(storedUser));
       setIsLoading(false);
-      return;
     }
 
-    if (!auth) {
-      setIsLoading(false);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    // Initialize Supabase auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setIsLoading(true);
-      if (firebaseUser) {
-        // Try to get extended profile from our API
-        const existingUser = await apiService.getUserByEmail(firebaseUser.email || "");
+      if (session?.user) {
+        const email = session.user.email || "";
+        // Try to get developer-defined profile
+        const existingUser = await apiService.getUserByEmail(email);
 
-        if (existingUser) {
-          setUser(existingUser);
-        } else {
-          // Fallback to firebase user info
-          const fbUser = {
-            id: firebaseUser.uid,
-            name: firebaseUser.displayName || "User",
-            email: firebaseUser.email || "",
-          };
-          setUser(fbUser);
-          localStorage.setItem('epiphany_user', JSON.stringify(fbUser));
-        }
-      } else {
+        const userData = existingUser || {
+          id: session.user.id,
+          name: session.user.user_metadata?.full_name || email.split('@')[0],
+          email: email,
+        };
+
+        setUser(userData);
+        localStorage.setItem('epiphany_user', JSON.stringify(userData));
+      } else if (event === 'SIGNED_OUT') {
         setUser(null);
         localStorage.removeItem('epiphany_user');
       }
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => subscription.unsubscribe();
   }, []);
 
   const signup = async (firstName: string, lastName: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     try {
-      if (auth) {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const fullName = `${firstName} ${lastName}`.trim();
-
-        await updateProfile(userCredential.user, {
-          displayName: fullName
-        });
-
-        // Try to sync with local API if available
-        try {
-          await apiService.signup(fullName, email, password);
-        } catch (e) {
-          console.warn("Backend sync failed during signup, continuing with Firebase only");
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: `${firstName} ${lastName}`.trim(),
+          }
         }
+      });
 
+      if (error) throw error;
+
+      // Try to sync with local API if available
+      try {
+        await apiService.signup(`${firstName} ${lastName}`, email, password);
+      } catch (e) {
+        console.warn("Backend sync failed during signup");
+      }
+
+      setIsLoading(false);
+      return { success: true };
+    } catch (error: any) {
+      console.error("Supabase Signup error:", error);
+
+      // Final Fallback: Pure Client Mode for Demos if Supabase fails (e.g. no internet/no config)
+      if (error.message?.includes('fetch') || error.message?.includes('Network')) {
+        const demoUser = {
+          id: `demo-${Date.now()}`,
+          name: `${firstName} ${lastName}`,
+          email: email,
+        };
+        setUser(demoUser);
+        localStorage.setItem('epiphany_user', JSON.stringify(demoUser));
         setIsLoading(false);
         return { success: true };
-      } else {
-        // Fallback: Local API
-        try {
-          const result = await apiService.signup(`${firstName} ${lastName}`, email, password);
-          if (result.success && result.user) {
-            setUser(result.user);
-            localStorage.setItem('epiphany_user', JSON.stringify(result.user));
-            setIsLoading(false);
-            return { success: true };
-          }
-        } catch (apiError) {
-          console.warn("Local API failed, falling back to Pure Client Mode");
-          // Final Fallback: Pure Client Mode for Demos
-          const demoUser = {
-            id: `demo-${Date.now()}`,
-            name: `${firstName} ${lastName}`,
-            email: email,
-          };
-          setUser(demoUser);
-          localStorage.setItem('epiphany_user', JSON.stringify(demoUser));
-          setIsLoading(false);
-          return { success: true };
-        }
-        setIsLoading(false);
-        return { success: false, error: "Authentication service unavailable" };
       }
-    } catch (error: any) {
-      console.error("Signup error:", error);
+
       setIsLoading(false);
-      let errorMessage = "An error occurred during signup.";
-      if (error.code === 'auth/email-already-in-use') errorMessage = "Email already exists.";
-      if (error.code === 'auth/weak-password') errorMessage = "Password is too weak.";
-      return { success: false, error: errorMessage };
+      return { success: false, error: error.message || "Signup failed" };
     }
   };
 
   const loginWithGoogle = async (): Promise<{ success: boolean; isNewUser?: boolean; email?: string; name?: string }> => {
-    if (!auth) {
-      toast({ title: "Google Login Unavailable", description: "Firebase is not configured.", variant: "destructive" });
-      return { success: false };
-    }
     setIsLoading(true);
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const email = result.user.email || "";
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
 
-      const existingUser = await apiService.getUserByEmail(email);
+      if (error) throw error;
 
-      setIsLoading(false);
-      if (existingUser) {
-        return { success: true, isNewUser: false };
-      } else {
-        return {
-          success: true,
-          isNewUser: true,
-          email: result.user.email || undefined,
-          name: result.user.displayName || undefined
-        };
-      }
+      return { success: true };
     } catch (error: any) {
       console.error("Google login error:", error);
       setIsLoading(false);
+      toast({ title: "Google Login Failed", description: "Could not connect to Supabase Auth.", variant: "destructive" });
       return { success: false };
     }
   };
@@ -171,79 +132,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const completeGoogleSignup = async (email: string, name: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     try {
-      try {
-        const result = await apiService.signup(name, email, password);
-        if (!result.success) {
-          setIsLoading(false);
-          return { success: false, error: result.error || "Failed to sync with backend" };
-        }
-      } catch (e) {
-        console.error("Backend sync failed during completeGoogleSignup:", e);
-        setIsLoading(false);
-        return { success: false, error: "Network error while completing setup" };
-      }
-
+      await apiService.signup(name, email, password);
       setIsLoading(false);
       return { success: true };
     } catch (error: any) {
       console.error("Complete Google signup error:", error);
       setIsLoading(false);
-      return { success: false, error: error.message || "Failed to complete setup" };
+      return { success: false, error: "Failed to complete setup" };
     }
   };
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     try {
-      if (auth) {
-        await signInWithEmailAndPassword(auth, email, password);
-        const profile = await apiService.getUserByEmail(email);
-        if (profile) {
-          setUser(profile);
-          localStorage.setItem('epiphany_user', JSON.stringify(profile));
-        }
-        setIsLoading(false);
-        return { success: true };
-      } else {
-        // Fallback: Local API
-        try {
-          const result = await apiService.login(email, password);
-          if (result.success && result.user) {
-            setUser(result.user);
-            localStorage.setItem('epiphany_user', JSON.stringify(result.user));
-            setIsLoading(false);
-            return { success: true };
-          }
-        } catch (apiError) {
-          console.warn("Local API failed during login, falling back to Demo Mode");
-          // Check if we have a "fake" user in localStorage for this email 
-          // (not robust but good enough for a demo fallback)
-          const demoUser = {
-            id: `demo-${Date.now()}`,
-            name: email.split('@')[0],
-            email: email,
-          };
-          setUser(demoUser);
-          localStorage.setItem('epiphany_user', JSON.stringify(demoUser));
-          setIsLoading(false);
-          return { success: true };
-        }
-        setIsLoading(false);
-        return { success: false, error: "Authentication service unavailable" };
-      }
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      setIsLoading(false);
+      return { success: true };
     } catch (error: any) {
       console.error("Login error:", error);
+
+      // Fallback: Demo Mode if Supabase/Network fails
+      if (error.message?.includes('fetch') || error.status === 400) {
+        console.warn("Falling back to Demo Mode");
+        const demoUser = {
+          id: `demo-${Date.now()}`,
+          name: email.split('@')[0],
+          email: email,
+        };
+        setUser(demoUser);
+        localStorage.setItem('epiphany_user', JSON.stringify(demoUser));
+        setIsLoading(false);
+        return { success: true };
+      }
+
       setIsLoading(false);
-      let errorMessage = "Invalid email or password.";
-      if (error.code === 'auth/network-request-failed') errorMessage = "Network error.";
-      return { success: false, error: errorMessage };
+      return { success: false, error: "Invalid email or password." };
     }
   };
 
   const logout = async () => {
-    if (auth) {
-      await signOut(auth);
-    }
+    await supabase.auth.signOut();
     setUser(null);
     localStorage.removeItem('epiphany_user');
   };
