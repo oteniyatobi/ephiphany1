@@ -60,26 +60,25 @@ const Marketplace = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <AppHeader title="Marketplace" subtitle="Support local businesses">
-        <div className="flex flex-col gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search products..."
-              className="pl-10 bg-background"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      <header className="mb-12">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">Marketplace</h1>
+            <p className="text-lg text-gray-600 max-w-2xl">Discover unique Rwandan treasures, from handwoven baskets to premium locally-grown coffee.</p>
           </div>
-          <Button
-            className="w-full bg-gold hover:bg-gold/90 text-gold-foreground gap-2"
-            onClick={() => navigate('/sell')}
-          >
-            <Plus className="h-4 w-4" />
-            Sell Your Product
-          </Button>
         </div>
-      </AppHeader>
+
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-epiphany-blue transition-colors h-5 w-5" />
+          <Input
+            type="text"
+            placeholder="Search products, crafts, or sellers..."
+            className="pl-12 py-7 text-lg bg-white/50 backdrop-blur-sm border-gray-200 focus:border-epiphany-blue focus:ring-epiphany-blue/10 transition-all shadow-sm group-hover:shadow-md rounded-2xl"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </header>
 
       <main className="p-4 space-y-6">
         {/* Categories */}

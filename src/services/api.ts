@@ -157,49 +157,6 @@ export class ApiService {
     }
   }
 
-  async getUserProducts(userId: string): Promise<any[]> {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('vendor_id', userId);
-
-      if (error) return [];
-      return data;
-    } catch (error) {
-      return [];
-    }
-  }
-
-  async createProduct(productData: any): Promise<any> {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert(productData)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return { success: true, data };
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
-  }
-
-  async deleteProduct(productId: string): Promise<any> {
-    try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId);
-
-      if (error) throw error;
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
-  }
-
   // --- Experiences API ---
 
   async getExperiences(): Promise<any[]> {

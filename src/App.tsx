@@ -10,8 +10,6 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Tourism from "./pages/Tourism";
 import Marketplace from "./pages/Marketplace";
-import SellProduct from "./pages/SellProduct";
-import MyAds from "./pages/MyAds";
 import Events from "./pages/Events";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -48,22 +46,6 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Marketplace />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/sell"
-              element={
-                <ProtectedRoute>
-                  <SellProduct />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-ads"
-              element={
-                <ProtectedRoute>
-                  <MyAds />
                 </ProtectedRoute>
               }
             />
