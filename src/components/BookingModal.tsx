@@ -51,13 +51,11 @@ const BookingModal = ({ isOpen, onClose, item, type }: BookingModalProps) => {
         setLoading(true);
         try {
             const bookingData = {
-                userId: user.id,
-                itemId: item.id,
-                itemTitle: item.title,
-                date: item.date || new Date().toISOString(),
-                quantity,
-                totalPrice: total,
-                category: type === 'event' ? 'Event' : 'Experience'
+                user_id: user.id,
+                event_id: item.id,
+                // These might need to be added to the schema if they are important, 
+                // but for now I'll align with the existing public.bookings table structure
+                status: 'pending'
             };
 
             await ApiService.createBooking(bookingData);

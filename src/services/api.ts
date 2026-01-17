@@ -10,19 +10,20 @@ interface User {
 
 export class ApiService {
 
-  async signup(name: string, email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> {
+  async signup(id: string, name: string, email: string): Promise<{ success: boolean; user?: User; error?: string }> {
     try {
       // In Supabase, the Auth signUp handles the account creation. 
       // We use this method to sync the profile to our public.users table if needed.
       const { data, error } = await supabase
         .from('users')
-        .upsert({ name, email })
+        .upsert({ id, name, email })
         .select()
         .single();
 
       if (error) {
         console.warn('Profile sync to users table failed:', error.message);
-        return { success: true }; // Still return true if auth succeeded but profile sync failed
+        // We still return success: true because the Auth part (in AuthContext) succeeded
+        return { success: true };
       }
 
       return { success: true, user: data as User };
@@ -43,6 +44,9 @@ export class ApiService {
   }
 
   async updateUser(userId: string, updates: Partial<User>): Promise<{ success: boolean; user?: User; error?: string }> {
+    const hasSupabase = import.meta.env.VITE_SUPABASE_URL && !import.meta.env.VITE_SUPABASE_URL.includes('your_');
+    if (!hasSupabase) return { success: true }; // No-op in local mode
+
     try {
       const { data, error } = await supabase
         .from('users')
@@ -59,7 +63,17 @@ export class ApiService {
     }
   }
 
-  static async createBooking(bookingData: any) {
+  static async createBooking(bookingData: { user_id: string, event_id: string, status?: string }) {
+    const hasSupabase = import.meta.env.VITE_SUPABASE_URL && !import.meta.env.VITE_SUPABASE_URL.includes('your_');
+
+    if (!hasSupabase) {
+      const bookings = JSON.parse(localStorage.getItem('epiphany_bookings') || '[]');
+      const newBooking = { ...bookingData, id: `book-${Date.now()}`, booking_date: new Date().toISOString() };
+      bookings.push(newBooking);
+      localStorage.setItem('epiphany_bookings', JSON.stringify(bookings));
+      return newBooking;
+    }
+
     const { data, error } = await supabase
       .from('bookings')
       .insert(bookingData)
@@ -70,10 +84,17 @@ export class ApiService {
   }
 
   static async getUserBookings(userId: string) {
+    const hasSupabase = import.meta.env.VITE_SUPABASE_URL && !import.meta.env.VITE_SUPABASE_URL.includes('your_');
+
+    if (!hasSupabase) {
+      const bookings = JSON.parse(localStorage.getItem('epiphany_bookings') || '[]');
+      return bookings.filter((b: any) => b.user_id === userId);
+    }
+
     const { data, error } = await supabase
       .from('bookings')
       .select('*')
-      .eq('userId', userId);
+      .eq('user_id', userId);
     if (error) throw error;
     return data;
   }
@@ -96,6 +117,20 @@ export class ApiService {
   // --- Events API ---
 
   async getEvents(): Promise<any[]> {
+    const hasSupabase = import.meta.env.VITE_SUPABASE_URL && !import.meta.env.VITE_SUPABASE_URL.includes('your_');
+
+    if (!hasSupabase) {
+      // Return sample events if local storage is empty, or return what's in local storage
+      const stored = localStorage.getItem('epiphany_events');
+      if (stored) return JSON.parse(stored);
+
+      // Return some dummy events if nothing stored
+      return [
+        { id: '1', title: 'Kigali Art Festival', date: '2024-08-15', location: 'Kigali Cultural Village', price: 'Free', image: 'https://images.unsplash.com/photo-1514525253440-b393452e8d26?w=800&auto=format&fit=crop&q=60' },
+        { id: '2', title: 'Tech Mixer Rwanda', date: '2024-08-20', location: 'Norrsken House', price: 'RWF 5000', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&auto=format&fit=crop&q=60' }
+      ];
+    }
+
     try {
       const { data, error } = await supabase
         .from('events')
